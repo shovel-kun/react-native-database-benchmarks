@@ -1,10 +1,17 @@
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { setupDb, test1 } from './database/op-sqlite';
+
 
 export default function App() {
+  useEffect(() => {
+    setupDb().then(() => test1());
+  }, []);
+
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+      <Text>Does this change?</Text>
       <StatusBar style="auto" />
     </View>
   );
