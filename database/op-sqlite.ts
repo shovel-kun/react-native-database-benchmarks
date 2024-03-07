@@ -80,7 +80,7 @@ export async function test5() {
     await db.transaction(async (tx: Transaction) => {
         for (let i = 0; i < 100; ++i) {
             const result = tx.execute(
-                "SELECT count(*) count, avg(b) avg FROM t2 WHERE c LIKE ?",
+                'SELECT count(*) count, avg(b) avg FROM t2 WHERE c LIKE ?',
                 [`%${numberName(i + 1)}%`]);
             console.log(result.rows?._array);
             assertAlways(result.rows!._array[0]['count'] > 400);
