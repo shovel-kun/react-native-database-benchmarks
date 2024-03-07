@@ -30,8 +30,8 @@ export async function setupDb() {
 
 /// Test 1: 1000 INSERTs
 export async function test1() {
-    for (var i = 0; i < 1000; i++) {
-        let n = randomIntFromInterval(0, 100000);
+    for (let i = 0; i < 1000; i++) {
+        const n = randomIntFromInterval(0, 100000);
         db.execute('INSERT INTO t1(a, b, c) VALUES(?, ?, ?)', [i + 1, n, numberName(n)]);
     }
     db.execute('PRAGMA wal_checkpoint(RESTART)');
@@ -40,8 +40,8 @@ export async function test1() {
 /// Test 2: 25000 INSERTs in a transaction
 export async function test2() {
     await db.transaction(async (tx: Transaction) => {
-        for (var i = 0; i < 25000; ++i) {
-            let n = randomIntFromInterval(0, 100000);
+        for (let i = 0; i < 25000; ++i) {
+            const n = randomIntFromInterval(0, 100000);
             tx.execute(`INSERT INTO t2(a, b, c) VALUES(?, ?, ?)`, [i + 1, n, numberName(n)]);
         }
     });
@@ -51,8 +51,8 @@ export async function test2() {
 /// Test 3: 25000 INSERTs into an indexed table
 export async function test3() {
     await db.transaction(async (tx: Transaction) => {
-        for (var i = 0; i < 25000; ++i) {
-            let n = randomIntFromInterval(0, 100000);
+        for (let i = 0; i < 25000; ++i) {
+            const n = randomIntFromInterval(0, 100000);
             tx.execute('INSERT INTO t3(a, b, c) VALUES(?, ?, ?)', [i + 1, n, numberName(n)]);
         }
     });
@@ -62,8 +62,8 @@ export async function test3() {
 /// Test 4: 100 SELECTs without an index
 export async function test4() {
     await db.transaction(async (tx: Transaction) => {
-        for (var i = 0; i < 100; ++i) {
-            let result: QueryResult = tx.execute(
+        for (let i = 0; i < 100; ++i) {
+            const result: QueryResult = tx.execute(
                 'SELECT count(*) count, avg(b) avg FROM t2 WHERE b>=? AND b<?',
                 [i * 100, i * 100 + 1000],
             );
@@ -71,6 +71,21 @@ export async function test4() {
             assertAlways(result.rows!._array[0]['count'] < 300);
             assertAlways(result.rows!._array[0]['avg'] > i * 100);
             assertAlways(result.rows!._array[0]['avg'] < i * 100 + 1000);
+        }
+    });
+}
+
+/// Test 5: 100 SELECTs on a string comparison
+export async function test5() {
+    await db.transaction(async (tx: Transaction) => {
+        for (let i = 0; i < 100; ++i) {
+            const result = tx.execute(
+                "SELECT count(*) count, avg(b) avg FROM t2 WHERE c LIKE ?",
+                [`%${numberName(i + 1)}%`]);
+            console.log(result.rows?._array);
+            assertAlways(result.rows!._array[0]['count'] > 400);
+            assertAlways(result.rows!._array[0]['count'] < 12000);
+            assertAlways(result.rows!._array[0]['avg'] > 30000);
         }
     });
 }
