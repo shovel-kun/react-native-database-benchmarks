@@ -80,12 +80,31 @@ export async function test5() {
     await db.transaction(async (tx: Transaction) => {
         for (let i = 0; i < 100; ++i) {
             const result = tx.execute(
-                'SELECT count(*) count, avg(b) avg FROM t2 WHERE c LIKE ?',
+                'SELECT count(*) AS count, avg(b) AS avg FROM t2 WHERE c LIKE ?',
                 [`%${numberName(i + 1)}%`]);
             console.log(result.rows?._array);
+            assertAlways(result.rows?._array !== null);
             assertAlways(result.rows!._array[0]['count'] > 400);
             assertAlways(result.rows!._array[0]['count'] < 12000);
             assertAlways(result.rows!._array[0]['avg'] > 30000);
+        }
+    });
+}
+
+/// Test 6: 5000 SELECTs with an index
+export async function test6() {
+    await db.transaction(async (tx: Transaction) => {
+        for (let i = 0; i < 5000; ++i) {
+            const result = tx.execute(
+                'SELECT count(*) count, avg(b) avg FROM t3 WHERE b>=? AND b<?',
+                [i * 100, i * 100 + 100]);
+            console.log(result.rows);
+            if (i < 1000) {
+                assertAlways(result.rows!._array[0]['count'] > 10);
+                assertAlways(result.rows!._array[0]['count'] < 100);
+            } else {
+                assertAlways(result.rows!._array[0]['count'] === 0);
+            }
         }
     });
 }
