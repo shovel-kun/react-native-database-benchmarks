@@ -1,12 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { setupDb, test1 } from './database/op-sqlite';
+import { setupDb, test1, test2 } from './database/op-sqlite';
 
 
 export default function App() {
   useEffect(() => {
-    setupDb().then(() => test1());
+    setupDb().then(() => test1().then(() => test2()));
   }, []);
 
   return (
