@@ -1,5 +1,5 @@
-import { Transaction, open } from '@op-engineering/op-sqlite';
-import Utils from './Utils';
+import { QueryResult, Transaction, open } from '@op-engineering/op-sqlite';
+import { randomIntFromInterval, numberName, assertAlways } from './Utils';
 
 const ROWS = 300000;
 const DB_NAME = 'op-sqlite';
@@ -30,40 +30,47 @@ export async function setupDb() {
 
 /// Test 1: 1000 INSERTs
 export async function test1() {
-    let start = performance.now();
     for (var i = 0; i < 1000; i++) {
-        let n = Utils.randomIntFromInterval(0, 100000);
-        db.execute('INSERT INTO t1(a, b, c) VALUES(?, ?, ?)', [i + 1, n, Utils.numberName(n)]);
+        let n = randomIntFromInterval(0, 100000);
+        db.execute('INSERT INTO t1(a, b, c) VALUES(?, ?, ?)', [i + 1, n, numberName(n)]);
     }
     db.execute('PRAGMA wal_checkpoint(RESTART)');
-    let end = performance.now();
-    console.log(`Test 1 time: ${end - start}ms`);
 }
 
 /// Test 2: 25000 INSERTs in a transaction
 export async function test2() {
-    let start = performance.now();
     await db.transaction(async (tx: Transaction) => {
         for (var i = 0; i < 25000; ++i) {
-            let n = Utils.randomIntFromInterval(0, 100000);
-            tx.execute(`INSERT INTO t2(a, b, c) VALUES(?, ?, ?)`, [i + 1, n, Utils.numberName(n)]);
+            let n = randomIntFromInterval(0, 100000);
+            tx.execute(`INSERT INTO t2(a, b, c) VALUES(?, ?, ?)`, [i + 1, n, numberName(n)]);
         }
     });
     await db.execute('PRAGMA wal_checkpoint(RESTART)');
-    let end = performance.now();
-    console.log(`Test 2 time: ${end - start}ms`);
 }
 
 /// Test 3: 25000 INSERTs into an indexed table
 export async function test3() {
-    let start = performance.now();
     await db.transaction(async (tx: Transaction) => {
         for (var i = 0; i < 25000; ++i) {
-            let n = Utils.randomIntFromInterval(0, 100000);
-            tx.execute('INSERT INTO t3(a, b, c) VALUES(?, ?, ?)', [i + 1, n, Utils.numberName(n)]);
+            let n = randomIntFromInterval(0, 100000);
+            tx.execute('INSERT INTO t3(a, b, c) VALUES(?, ?, ?)', [i + 1, n, numberName(n)]);
         }
     });
     await db.execute('PRAGMA wal_checkpoint(RESTART)');
-    let end = performance.now();
-    console.log(`Test 3 time: ${end - start}ms`);
+}
+
+/// Test 4: 100 SELECTs without an index
+export async function test4() {
+    await db.transaction(async (tx: Transaction) => {
+        for (var i = 0; i < 100; ++i) {
+            let result: QueryResult = tx.execute(
+                'SELECT count(*) count, avg(b) avg FROM t2 WHERE b>=? AND b<?',
+                [i * 100, i * 100 + 1000],
+            );
+            assertAlways(result.rows?._array !== null && result.rows!._array[0]['count'] > 200);
+            assertAlways(result.rows!._array[0]['count'] < 300);
+            assertAlways(result.rows!._array[0]['avg'] > i * 100);
+            assertAlways(result.rows!._array[0]['avg'] < i * 100 + 1000);
+        }
+    });
 }

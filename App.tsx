@@ -1,12 +1,25 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { setupDb, test1, test2, test3 } from './database/op-sqlite';
+import { setupDb, test1, test2, test3, test4 } from './database/op-sqlite';
+import Benchmark from './interface/benchmark';
 
 
 export default function App() {
   useEffect(() => {
-    setupDb().then(() => test1().then(() => test2()));
+    const runTests = async () => {
+      try {
+        await setupDb();
+        await Benchmark.record('Test 1', test1);
+        await Benchmark.record('Test 2', test2);
+        await Benchmark.record('Test 3', test3);
+        await Benchmark.record('Test 4', test4);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    runTests();
   }, []);
 
   return (
