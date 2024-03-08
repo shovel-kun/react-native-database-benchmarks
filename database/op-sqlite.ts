@@ -1,28 +1,28 @@
 import { OPSQLiteConnection, QueryResult, Transaction, open } from '@op-engineering/op-sqlite';
 import { randomIntFromInterval, numberName, assertAlways } from './Utils';
-import RNFS from 'react-native-fs';
+import * as FileSystem from 'expo-file-system';
+import Benchmark from '../interface/benchmark';
 
-const ROWS = 300000;
 const DB_NAME = 'op-sqlite';
-const dir = RNFS.TemporaryDirectoryPath;
-
+const dir = FileSystem.documentDirectory;
 
 let db: OPSQLiteConnection;
 
 export async function setupDb() {
-    const dbPath = `${dir}'/sqflite.db'`;
+    const dbPath = dir + 'op-sqlite.db';
 
     try {
-        if (await RNFS.exists(dbPath)) {
+        const { exists } = await FileSystem.getInfoAsync(dbPath);
+        if (exists) {
             console.log('deleting db file');
-            await RNFS.unlink(dbPath);
+            await FileSystem.deleteAsync(dbPath);
         }
     } catch (e) {
         // Ignore
     }
     const DB_CONFIG = {
         name: DB_NAME,
-        location: dbPath
+        location: dir!,
     };
 
     console.log(`Setup db`);
@@ -37,6 +37,26 @@ export async function setupDb() {
         'CREATE TABLE IF NOT EXISTS t3(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)');
     db.execute('CREATE INDEX IF NOT EXISTS i3a ON t3(a)');
     db.execute('CREATE INDEX IF NOT EXISTS i3b ON t3(b)');
+}
+
+export async function runAllTests() {
+    await setupDb();
+    await Benchmark.record('Test 1', test1);
+    await Benchmark.record('Test 2', test2);
+    await Benchmark.record('Test 3', test3);
+    await Benchmark.record('Test 4', test4);
+    await Benchmark.record('Test 5', test5);
+    await Benchmark.record('Test 6', test6);
+    await Benchmark.record('Test 8', test8);
+    await Benchmark.record('Test 9', test9);
+    await Benchmark.record('Test 10', test10);
+    await Benchmark.record('Test 11', test11);
+    await Benchmark.record('Test 12', test12);
+    await Benchmark.record('Test 13', test13);
+    await Benchmark.record('Test 14', test14);
+    await Benchmark.record('Test 15', test15);
+    await Benchmark.record('Test 16', test16);
+
 }
 
 /// Test 1: 1000 INSERTs
