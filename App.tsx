@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Button, StyleSheet, Text, View } from 'react-native';
 import { runAllTests } from './database/op-sqlite';
 import { runAllTestsExpo } from './database/expo-sqlite';
 import Benchmark from './interface/benchmark';
@@ -23,7 +23,11 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text>Does this change?</Text>
+      <Button
+        title="Press me"
+        color="#f194ff"
+        onPress={() => runAllTestsExpo()}
+      />
       <StatusBar style="auto" />
     </View>
   );
