@@ -10,30 +10,30 @@ export default function App() {
   useEffect(() => {
     const runTests = async () => {
       try {
-        // await runAllTests();
-        // const results = await new OPSqlite().runAll();
-        // console.log(results.toString());
+        let opsqlite = new OPSqlite();
+        const opResults = await opsqlite.runAll();
+        let expoSqlite = new ExpoSqlite();
+        const expoResults = await expoSqlite.runAll();
 
       } catch (err) {
         console.error(err);
       }
     }
 
-    // runTests().then(() => console.log('DONE main'));
+    runTests().then(() => console.log('DONE'));
   }, []);
 
   return (
     <View style={styles.container}>
       <Button
-        title="Press me"
-        color="#f194ff"
+        title="Run tests"
+        color="#000000"
         onPress={async () => {
           try {
-            // await runAllTests();
-            // let opsqlite = new OPSqlite();
-            // const results = await opsqlite.runAll();
+            let opsqlite = new OPSqlite();
+            const opResults = await opsqlite.runAll();
             let expoSqlite = new ExpoSqlite();
-            const results = await expoSqlite.runAll();
+            const expoResults = await expoSqlite.runAll();
             // console.log(results.toString());
 
           } catch (err) {
