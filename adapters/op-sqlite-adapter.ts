@@ -34,24 +34,11 @@ export class OPSqliteAdapter implements DBAdapter {
       location: dir!
     };
 
-    console.log(`Setup db`);
+    console.log(`Setup op-sqlie db`);
+
     this._db = open(DB_CONFIG);
 
-    this.db.execute('DELETE FROM t1');
-    this.db.execute('DELETE FROM t2');
-    this.db.execute('DELETE FROM t3');
-
-    this.db.execute(
-      'CREATE TABLE IF NOT EXISTS t1(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)');
-    this.db.execute(
-      'CREATE TABLE IF NOT EXISTS t2(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)');
-
-    this.db.execute(
-      'CREATE TABLE IF NOT EXISTS t3(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)');
-    this.db.execute('CREATE INDEX IF NOT EXISTS i3a ON t3(a)');
-    this.db.execute('CREATE INDEX IF NOT EXISTS i3b ON t3(b)');
-
-    console.log(`Setup done`);
+    console.log(`Setup op-sqlie done`);
   }
 
   async executeSync(sql: string, params?: any[]): Promise<ResultSet> {

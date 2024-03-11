@@ -37,21 +37,6 @@ export class ExpoSqliteAdapter implements DBAdapter {
 
         console.log(`Setup expo db`);
         this._db = SQLite.openDatabase(DB_NAME);
-
-        // db.exec([{ sql: 'CREATE TABLE t1(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)', args: [] }], false, () => { });
-        // db.exec(
-        //     [{ sql: 'CREATE TABLE t2(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)', args: [] }], false, () => { });
-        // db.exec([{ sql: 'CREATE TABLE t3(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)', args: [] }], false, () => { });
-        // db.exec([{ sql: 'CREATE INDEX IF NOT EXISTS i3a ON t3(a)', args: [] }], false, () => { });
-        // db.exec([{ sql: 'CREATE INDEX IF NOT EXISTS i3b ON t3(b)', args: [] }], false, () => { });
-
-        await this.db.execAsync([{ sql: 'CREATE TABLE t1(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)', args: [] }], false);
-        await this.db.execAsync(
-            [{ sql: 'CREATE TABLE t2(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)', args: [] }], false);
-        await this.db.execAsync([{ sql: 'CREATE TABLE t3(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)', args: [] }], false);
-        await this.db.execAsync([{ sql: 'CREATE INDEX IF NOT EXISTS i3a ON t3(a)', args: [] }], false);
-        await this.db.execAsync([{ sql: 'CREATE INDEX IF NOT EXISTS i3b ON t3(a)', args: [] }], false);
-
         console.log(`Setup expo done`);
     }
 
@@ -87,13 +72,11 @@ export class ExpoSqliteAdapter implements DBAdapter {
                     };
                 },
                 commit: () => {
-                    // const result = context.commit();
                     return {
                         rows: [],
                     };
                 },
                 rollback: () => {
-                    // const result = context.rollback();
                     return {
                         rows: []
                     };

@@ -58,8 +58,26 @@ class Benchmark {
         this.dbAdapter = dbAdapter;
     }
 
+    async setUp(): Promise<void> {
+        // this.dbAdapter.execute('DELETE FROM t1');
+        // this.dbAdapter.execute('DELETE FROM t2');
+        // this.dbAdapter.execute('DELETE FROM t3');
+
+        this.dbAdapter.execute(
+            'CREATE TABLE IF NOT EXISTS t1(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)');
+        this.dbAdapter.execute(
+            'CREATE TABLE IF NOT EXISTS t2(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)');
+
+        this.dbAdapter.execute(
+            'CREATE TABLE IF NOT EXISTS t3(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)');
+        this.dbAdapter.execute('CREATE INDEX IF NOT EXISTS i3a ON t3(a)');
+        this.dbAdapter.execute('CREATE INDEX IF NOT EXISTS i3b ON t3(b)');
+    }
+
     async runAll(): Promise<BenchmarkResults> {
         let results: BenchmarkResults = new BenchmarkResults(this.name);
+
+        await this.setUp();
 
         await results.record('Test 1: 1000 INSERTs', async () => {
             await this.test1();
@@ -279,7 +297,7 @@ class Benchmark {
     }
 
     async tearDown(): Promise<void> {
-        this.dbAdapter.close();
+        await this.dbAdapter.close();
     }
 }
 
