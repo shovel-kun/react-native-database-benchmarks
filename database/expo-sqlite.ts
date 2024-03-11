@@ -1,12 +1,38 @@
 import * as SQLite from 'expo-sqlite';
 import { randomIntFromInterval, numberName, assertAlways } from './Utils';
 import * as FileSystem from 'expo-file-system';
-import Benchmark from '../interface/benchmark';
+import Benchmark, { BenchmarkResults } from '../interface/benchmark';
+import { ExpoSqliteAdapter } from '../adapters/expo-sqlite-adapter';
 
 const DB_NAME = 'expo-sqlite';
 const dir = FileSystem.documentDirectory;
 
 let db: SQLite.SQLiteDatabase;
+
+export class ExpoSqlite {
+    private _bm: Benchmark | null;
+
+    constructor() {
+        this._bm = null;
+    }
+
+    // Only to be used after setUp()
+    get bm() {
+        return this._bm as Benchmark;
+    }
+
+    async setUp(): Promise<void> {
+        let adapter = new ExpoSqliteAdapter();
+        await adapter.init();
+        this._bm = new Benchmark('op-sqlite', adapter);
+    }
+
+    async runAll(): Promise<BenchmarkResults> {
+        await this.setUp();
+        let result = await this.bm.runAll();
+        return new BenchmarkResults('');
+    }
+}
 
 export async function setupDb() {
     const dbPath = dir + 'SQLite/' + DB_NAME;
@@ -39,14 +65,14 @@ export async function setupDb() {
 
 export async function runAllTestsExpo() {
     await setupDb();
-    await Benchmark.record('Test 1', test1);
-    await Benchmark.record('Test 2', test2);
-    await Benchmark.record('Test 3', test3);
-    await Benchmark.record('Test 4', test4);
-    await Benchmark.record('Test 5', test5);
-    await Benchmark.record('Test 6', test6);
-    await Benchmark.record('Test 8', test8);
-    await Benchmark.record('Test 9', test9);
+    // await Benchmark.record('Test 1', test1);
+    // await Benchmark.record('Test 2', test2);
+    // await Benchmark.record('Test 3', test3);
+    // await Benchmark.record('Test 4', test4);
+    // await Benchmark.record('Test 5', test5);
+    // await Benchmark.record('Test 6', test6);
+    // await Benchmark.record('Test 8', test8);
+    // await Benchmark.record('Test 9', test9);
 }
 
 /// Test 1: 1000 INSERTs
@@ -138,6 +164,7 @@ export async function test8() {
                 [i * 10, i * 10 + 10],
             );
         }
+
     });
 }
 

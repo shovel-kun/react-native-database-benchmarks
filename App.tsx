@@ -1,9 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
-import { runAllTests } from './database/op-sqlite';
-import { runAllTestsExpo } from './database/expo-sqlite';
-import Benchmark from './interface/benchmark';
+import { OPSqlite } from './database/op-sqlite';
+import Benchmark, { BenchmarkResults } from './interface/benchmark';
+import { ExpoSqlite } from './database/expo-sqlite';
 
 
 export default function App() {
@@ -11,14 +11,15 @@ export default function App() {
     const runTests = async () => {
       try {
         // await runAllTests();
-        await runAllTestsExpo();
+        // const results = await new OPSqlite().runAll();
+        // console.log(results.toString());
 
       } catch (err) {
         console.error(err);
       }
     }
 
-    runTests().then(() => console.log('DONE'));
+    // runTests().then(() => console.log('DONE main'));
   }, []);
 
   return (
@@ -26,7 +27,20 @@ export default function App() {
       <Button
         title="Press me"
         color="#f194ff"
-        onPress={() => runAllTestsExpo()}
+        onPress={async () => {
+          try {
+            // await runAllTests();
+            // let opsqlite = new OPSqlite();
+            // const results = await opsqlite.runAll();
+            let expoSqlite = new ExpoSqlite();
+            const results = await expoSqlite.runAll();
+            // console.log(results.toString());
+
+          } catch (err) {
+            console.error(err);
+          }
+
+        }}
       />
       <StatusBar style="auto" />
     </View>
@@ -41,3 +55,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+async function test(bm: OPSqlite): Promise<BenchmarkResults> {
+  // console.log(bm.name);
+  const results = await bm.runAll();
+  return results;
+}
