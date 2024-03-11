@@ -1,9 +1,7 @@
-// class Benchmark {
-
 import { assertAlways, numberName, randomIntFromInterval } from "../database/Utils";
 import { DBAdapter } from "./db_adapter";
 
-export class BenchmarkResult {
+class BenchmarkResult {
     test: string;
     duration: number;
 
@@ -59,6 +57,7 @@ class Benchmark {
     }
 
     async setUp(): Promise<void> {
+        await this.dbAdapter.init();
         // this.dbAdapter.execute('DELETE FROM t1');
         // this.dbAdapter.execute('DELETE FROM t2');
         // this.dbAdapter.execute('DELETE FROM t3');

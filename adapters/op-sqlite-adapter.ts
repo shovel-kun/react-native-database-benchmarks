@@ -34,11 +34,11 @@ export class OPSqliteAdapter implements DBAdapter {
       location: dir!
     };
 
-    console.log(`Setup op-sqlie db`);
+    console.log(`Setup op-sqlite db`);
 
     this._db = open(DB_CONFIG);
 
-    console.log(`Setup op-sqlie done`);
+    console.log(`Setup op-sqlite done`);
   }
 
   async executeSync(sql: string, params?: any[]): Promise<ResultSet> {
@@ -65,13 +65,13 @@ export class OPSqliteAdapter implements DBAdapter {
             rows: result.rows?._array ?? []
           };
         },
-        commit: () => {
+        commit: async () => {
           const result = context.commit();
           return {
             rows: result.rows?._array ?? []
           };
         },
-        rollback: () => {
+        rollback: async () => {
           const result = context.rollback();
           return {
             rows: result.rows?._array ?? []

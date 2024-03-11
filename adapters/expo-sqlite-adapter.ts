@@ -71,12 +71,12 @@ export class ExpoSqliteAdapter implements DBAdapter {
                         rows: result.rows ?? []
                     };
                 },
-                commit: () => {
+                commit: async () => {
                     return {
                         rows: [],
                     };
                 },
-                rollback: () => {
+                rollback: async () => {
                     return {
                         rows: []
                     };

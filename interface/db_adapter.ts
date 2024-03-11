@@ -1,6 +1,6 @@
 export interface DBAdapter {
 
-    init(): void;
+    init(): Promise<void>;
 
     execute(sql: string, params?: any[]): Promise<ResultSet>;
 
@@ -15,8 +15,8 @@ export interface ResultSet {
 
 export interface SQLTransaction {
     execute(sqlStatement: string, args?: any[]): Promise<ResultSet>;
-    commit: () => ResultSet;
-    rollback: () => ResultSet;
+    commit: () => Promise<ResultSet>;
+    rollback: () => Promise<ResultSet>;
 }
 
 export type TransactionCallback = (transaction: SQLTransaction) => Promise<void>;
