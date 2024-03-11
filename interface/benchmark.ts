@@ -487,7 +487,7 @@ export class BenchmarkBatched extends Benchmark {
             const query = `UPDATE t3 SET b=? WHERE a=?`;
             for (let i = 0; i < 25000; ++i) {
                 const n = randomIntFromInterval(0, 100000);
-                params.push([query, [i + 1, n, numberName(n)]]);
+                params.push([query, [n, i + 1]]);
             }
             await db.executeBatch(params);
         });
@@ -501,7 +501,7 @@ export class BenchmarkBatched extends Benchmark {
             const query = `UPDATE t3 SET c=? WHERE a=?`;
             for (let i = 0; i < 25000; ++i) {
                 const n = randomIntFromInterval(0, 100000);
-                params.push([query, [i + 1, n, numberName(n)]]);
+                params.push([query, [numberName(n), i + 1]]);
             }
             await db.executeBatch(params);
         });
