@@ -1,14 +1,15 @@
 import * as FileSystem from 'expo-file-system';
 import { OPSQLiteConnection, open } from '@op-engineering/op-sqlite';
-import { DBAdapter, ResultSet, TransactionCallback } from '../interface/db_adapter';
+import { AbstractDBAdapter, DBAdapter, ResultSet, SQLBatchTuple, TransactionCallback } from '../interface/db_adapter';
 
 const DB_NAME = 'op-sqlite';
 const dir = FileSystem.documentDirectory;
 
-export class OPSqliteAdapter implements DBAdapter {
+export class OPSqliteAdapter extends AbstractDBAdapter {
   private _db: OPSQLiteConnection | null;
 
   constructor() {
+    super();
     this._db = null;
   }
 
@@ -55,24 +56,19 @@ export class OPSqliteAdapter implements DBAdapter {
     };
   }
 
+  async executeBatch(commands: SQLBatchTuple[]): Promise<ResultSet> {
+    const results = this.db.executeBatch(commands);
+    return {
+      rowsAffected: results.rowsAffected,
+    };
+  }
+
   async transaction(callback: TransactionCallback): Promise<void> {
-    return this.db.transaction(async (context) => {
+    return await this.db.transaction(async (context) => {
       // call the callback, but map the transaction context
       return callback({
         execute: async (sql: string, params: []) => {
           const result = await context.executeAsync(sql, params);
-          return {
-            rows: result.rows?._array ?? []
-          };
-        },
-        commit: async () => {
-          const result = context.commit();
-          return {
-            rows: result.rows?._array ?? []
-          };
-        },
-        rollback: async () => {
-          const result = context.rollback();
           return {
             rows: result.rows?._array ?? []
           };

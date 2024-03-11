@@ -1,14 +1,16 @@
 import * as FileSystem from 'expo-file-system';
-import { DBAdapter, ResultSet, TransactionCallback } from '../interface/db_adapter';
+import { AbstractDBAdapter, DBAdapter, ManualTransactionCallback, ResultSet, SQLBatchTuple, TransactionCallback } from '../interface/db_adapter';
 import { QuickSQLiteConnection, open } from '@journeyapps/react-native-quick-sqlite';
 
 const DB_NAME = 'powersync-sqlite';
 const dir = FileSystem.documentDirectory;
 
-export class PowersyncSqliteAdapter implements DBAdapter {
+export class PowersyncSqliteAdapter extends AbstractDBAdapter {
     private _db: QuickSQLiteConnection | null;
 
+
     constructor() {
+        super();
         this._db = null;
     }
 
@@ -42,28 +44,24 @@ export class PowersyncSqliteAdapter implements DBAdapter {
     async execute(sql: string, params?: any[]): Promise<ResultSet> {
         const results = await this.db.execute(sql, params);
         return {
-            rows: results.rows?._array ?? []
+            rows: results.rows?._array ?? [],
+            rowsAffected: results.rowsAffected,
+        };
+    }
+
+    async executeBatch(commands: SQLBatchTuple[]): Promise<ResultSet> {
+        const results = await this.db.executeBatch(commands);
+        return {
+            rowsAffected: results.rowsAffected,
         };
     }
 
     async transaction(callback: TransactionCallback): Promise<void> {
-        return this.db.writeTransaction(async (context) => {
+        return await this.db.writeTransaction(async (context) => {
             // call the callback, but map the transaction context
             return callback({
                 execute: async (sql: string, params: []) => {
                     const result = await context.execute(sql, params);
-                    return {
-                        rows: result.rows?._array ?? []
-                    };
-                },
-                commit: async () => {
-                    const result = await context.commit();
-                    return {
-                        rows: result.rows?._array ?? []
-                    };
-                },
-                rollback: async () => {
-                    const result = await context.rollback();
                     return {
                         rows: result.rows?._array ?? []
                     };

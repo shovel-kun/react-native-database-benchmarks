@@ -1,6 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 import * as FileSystem from 'expo-file-system';
-import { DBAdapter, ResultSet, TransactionCallback } from '../interface/db_adapter';
+import { AbstractDBAdapter, DBAdapter, ResultSet, SQLBatchTuple, TransactionCallback } from '../interface/db_adapter';
+import { ClassNotImplementedError } from '../errors/errors';
 
 
 const DB_NAME = 'expo-sqlite';
@@ -10,10 +11,11 @@ export async function setupDb() {
 
 }
 
-export class ExpoSqliteAdapter implements DBAdapter {
+export class ExpoSqliteAdapter extends AbstractDBAdapter {
     private _db: SQLite.SQLiteDatabase | null;
 
     constructor() {
+        super();
         this._db = null;
     }
 
@@ -61,8 +63,12 @@ export class ExpoSqliteAdapter implements DBAdapter {
         };
     }
 
+    executeBatch(commands: SQLBatchTuple[]): Promise<ResultSet> {
+        throw new ClassNotImplementedError('ExecuteBatch() method not implemented.');
+    }
+
     async transaction(callback: TransactionCallback): Promise<void> {
-        return this.db.transactionAsync(async (context) => {
+        return await this.db.transactionAsync(async (context) => {
             // call the callback, but map the transaction context
             return callback({
                 execute: async (sql: string, params: any[]) => {
@@ -71,16 +77,6 @@ export class ExpoSqliteAdapter implements DBAdapter {
                         rows: result.rows ?? []
                     };
                 },
-                commit: async () => {
-                    return {
-                        rows: [],
-                    };
-                },
-                rollback: async () => {
-                    return {
-                        rows: []
-                    };
-                }
             });
         });
     }

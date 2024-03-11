@@ -1,4 +1,4 @@
-import Benchmark from "../interface/benchmark";
+import Benchmark, { BenchmarkBatched } from "../interface/benchmark";
 import { DBAdapter } from "../interface/db_adapter";
 
 export class BenchmarkSuite {
@@ -11,6 +11,13 @@ export class BenchmarkSuite {
     async runBenchmarks() {
         for (const benchmark of this.benchmarks) {
             let bm = new Benchmark(benchmark.name, benchmark.dbAdapter);
+            await bm.runAll();
+        }
+    }
+
+    async runBatchedBenchmarks() {
+        for (const benchmark of this.benchmarks) {
+            let bm = new BenchmarkBatched(benchmark.name, benchmark.dbAdapter);
             await bm.runAll();
         }
     }
