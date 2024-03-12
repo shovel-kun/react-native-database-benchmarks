@@ -1,4 +1,5 @@
 import { assertAlways, numberName, randomIntFromInterval } from "../database/Utils";
+import { ClassNotImplementedError } from "../errors/errors";
 import { DBAdapter, SQLBatchTuple } from "./db_adapter";
 
 class BenchmarkResult {
@@ -11,11 +12,11 @@ class BenchmarkResult {
     }
 
     toString(): string {
-        return "$test: ${duration.inMilliseconds / 1000.0}s";
+        return `${this.test}: ${this.duration / 1000.0}s`;
     }
 
     toCsv(): string {
-        return "$test,${duration.inMilliseconds}";
+        return `${this.test},${this.duration}`;
     }
 }
 
@@ -30,11 +31,18 @@ export class BenchmarkResults {
 
     async record(name: string, callback: () => Promise<void>) {
         let start = performance.now();
-        await callback();
-        let end = performance.now();
-        let duration = end - start;
-        this.results.push(new BenchmarkResult(name, duration));
-        console.log(`${name} :: ${duration}ms`);
+        try {
+            await callback();
+            let end = performance.now();
+            let duration = end - start;
+            this.results.push(new BenchmarkResult(name, duration));
+            console.log(`${name} :: ${duration}ms`);
+        } catch (err) {
+            if (err instanceof ClassNotImplementedError) {
+                this.results.push(new BenchmarkResult(name, 0));
+                console.log(`${name} :: ${err.message}`);
+            }
+        }
     };
 
 
@@ -314,20 +322,6 @@ export class BenchmarkBatched extends Benchmark {
 
     async setUp(): Promise<void> {
         await super.setUp();
-        // await this.dbAdapter.init();
-        // // this.dbAdapter.execute('DELETE FROM t1');
-        // // this.dbAdapter.execute('DELETE FROM t2');
-        // // this.dbAdapter.execute('DELETE FROM t3');
-
-        // this.dbAdapter.execute(
-        //     'CREATE TABLE IF NOT EXISTS t1(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)');
-        // this.dbAdapter.execute(
-        //     'CREATE TABLE IF NOT EXISTS t2(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)');
-
-        // this.dbAdapter.execute(
-        //     'CREATE TABLE IF NOT EXISTS t3(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)');
-        // this.dbAdapter.execute('CREATE INDEX IF NOT EXISTS i3a ON t3(a)');
-        // this.dbAdapter.execute('CREATE INDEX IF NOT EXISTS i3b ON t3(b)');
     }
 
     async runAll(): Promise<BenchmarkResults> {
@@ -395,28 +389,24 @@ export class BenchmarkBatched extends Benchmark {
     }
     /// Test 2: 25000 INSERTs in a transaction
     async test2(): Promise<void> {
-        await this.dbAdapter.manualTransaction(async db => {
-            let params: SQLBatchTuple[] = [];
-            const query = `INSERT INTO t2(a, b, c) VALUES(?, ?, ?)`;
-            for (let i = 0; i < 25000; ++i) {
-                const n = randomIntFromInterval(0, 100000);
-                params.push([query, [i + 1, n, numberName(n)]]);
-            }
-            await db.executeBatch(params);
-        });
+        let params: SQLBatchTuple[] = [];
+        const query = `INSERT INTO t2(a, b, c) VALUES(?, ?, ?)`;
+        for (let i = 0; i < 25000; ++i) {
+            const n = randomIntFromInterval(0, 100000);
+            params.push([query, [i + 1, n, numberName(n)]]);
+        }
+        await this.dbAdapter.executeBatch(params);
         await this.dbAdapter.execute('PRAGMA wal_checkpoint(RESTART)');
     }
     /// Test 3: 25000 INSERTs into an indexed table
     async test3(): Promise<void> {
-        await this.dbAdapter.manualTransaction(async db => {
-            let params: SQLBatchTuple[] = [];
-            const query = `INSERT INTO t3(a, b, c) VALUES(?, ?, ?)`;
-            for (let i = 0; i < 25000; ++i) {
-                const n = randomIntFromInterval(0, 100000);
-                params.push([query, [i + 1, n, numberName(n)]]);
-            }
-            await db.executeBatch(params);
-        });
+        let params: SQLBatchTuple[] = [];
+        const query = `INSERT INTO t3(a, b, c) VALUES(?, ?, ?)`;
+        for (let i = 0; i < 25000; ++i) {
+            const n = randomIntFromInterval(0, 100000);
+            params.push([query, [i + 1, n, numberName(n)]]);
+        }
+        await this.dbAdapter.executeBatch(params);
         await this.dbAdapter.execute('PRAGMA wal_checkpoint(RESTART)');
     }
     /// Test 4: 100 SELECTs without an index
@@ -482,29 +472,25 @@ export class BenchmarkBatched extends Benchmark {
 
     /// Test 9: 25000 UPDATEs with an index
     async test9(): Promise<void> {
-        await this.dbAdapter.manualTransaction(async db => {
-            let params: SQLBatchTuple[] = [];
-            const query = `UPDATE t3 SET b=? WHERE a=?`;
-            for (let i = 0; i < 25000; ++i) {
-                const n = randomIntFromInterval(0, 100000);
-                params.push([query, [n, i + 1]]);
-            }
-            await db.executeBatch(params);
-        });
+        let params: SQLBatchTuple[] = [];
+        const query = `UPDATE t3 SET b=? WHERE a=?`;
+        for (let i = 0; i < 25000; ++i) {
+            const n = randomIntFromInterval(0, 100000);
+            params.push([query, [n, i + 1]]);
+        }
+        await this.dbAdapter.executeBatch(params);
         await this.dbAdapter.execute('PRAGMA wal_checkpoint(RESTART)');
     }
 
     /// Test 10: 25000 text UPDATEs with an index
     async test10(): Promise<void> {
-        await this.dbAdapter.manualTransaction(async db => {
-            let params: SQLBatchTuple[] = [];
-            const query = `UPDATE t3 SET c=? WHERE a=?`;
-            for (let i = 0; i < 25000; ++i) {
-                const n = randomIntFromInterval(0, 100000);
-                params.push([query, [numberName(n), i + 1]]);
-            }
-            await db.executeBatch(params);
-        });
+        let params: SQLBatchTuple[] = [];
+        const query = `UPDATE t3 SET c=? WHERE a=?`;
+        for (let i = 0; i < 25000; ++i) {
+            const n = randomIntFromInterval(0, 100000);
+            params.push([query, [numberName(n), i + 1]]);
+        }
+        await this.dbAdapter.executeBatch(params);
         await this.dbAdapter.execute('PRAGMA wal_checkpoint(RESTART)');
     }
 
@@ -533,16 +519,14 @@ export class BenchmarkBatched extends Benchmark {
 
     /// Test 15: A big DELETE followed by many small INSERTs
     async test15(): Promise<void> {
-        await this.dbAdapter.manualTransaction(async db => {
-            await db.execute('DELETE FROM t1');
-            let params: SQLBatchTuple[] = [];
-            const query = `INSERT INTO t1(a, b, c) VALUES(?, ?, ?)`;
-            for (let i = 0; i < 25000; ++i) {
-                const n = randomIntFromInterval(0, 100000);
-                params.push([query, [i + 1, n, numberName(n)]]);
-            }
-            await db.executeBatch(params);
-        });
+        await this.dbAdapter.execute('DELETE FROM t1');
+        let params: SQLBatchTuple[] = [];
+        const query = `INSERT INTO t1(a, b, c) VALUES(?, ?, ?)`;
+        for (let i = 0; i < 25000; ++i) {
+            const n = randomIntFromInterval(0, 100000);
+            params.push([query, [i + 1, n, numberName(n)]]);
+        }
+        await this.dbAdapter.executeBatch(params);
         await this.dbAdapter.execute('PRAGMA wal_checkpoint(RESTART)');
     }
 

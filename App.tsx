@@ -10,28 +10,16 @@ import { ClassNotImplementedError } from './errors/errors';
 export default function App() {
   useEffect(() => {
     const runTests = async () => {
-      try {
-
-        let opSqliteAdapter = new OPSqliteAdapter();
-        let expoSqliteAdapter = new ExpoSqliteAdapter();
-        // let bm = new BenchmarkBatched('test', expoSqliteAdapter);
-        // await bm.runAll();
-        let psSqliteAdapter = new PowersyncSqliteAdapter();
-        let benchmarks = [
-          { 'name': 'op-sqlite', 'dbAdapter': opSqliteAdapter },
-          { 'name': 'powersync-sqlite', 'dbAdapter': psSqliteAdapter },
-          { 'name': 'expo-sqlite', 'dbAdapter': expoSqliteAdapter }
-        ];
-        let benchmarkSuite = new BenchmarkSuite(benchmarks);
-        await benchmarkSuite.runBenchmarks();
-        await benchmarkSuite.runBatchedBenchmarks();
-
-      } catch (err) {
-        if (err instanceof ClassNotImplementedError) {
-          console.log(err.message);
-        }
-        console.error(err);
-      }
+      let opSqliteAdapter = new OPSqliteAdapter();
+      let expoSqliteAdapter = new ExpoSqliteAdapter();
+      let psSqliteAdapter = new PowersyncSqliteAdapter();
+      let benchmarks = [
+        { 'name': 'op-sqlite', 'dbAdapter': opSqliteAdapter },
+        { 'name': 'powersync-sqlite', 'dbAdapter': psSqliteAdapter },
+        { 'name': 'expo-sqlite', 'dbAdapter': expoSqliteAdapter }
+      ];
+      let benchmarkSuite = new BenchmarkSuite(benchmarks);
+      let results = await benchmarkSuite.runBenchmarks();
     }
 
     runTests().then(() => console.log('DONE'));

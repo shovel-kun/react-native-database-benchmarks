@@ -1,5 +1,5 @@
 import * as FileSystem from 'expo-file-system';
-import { AbstractDBAdapter, DBAdapter, ManualTransactionCallback, ResultSet, SQLBatchTuple, TransactionCallback } from '../interface/db_adapter';
+import { AbstractDBAdapter, ResultSet, SQLBatchTuple, TransactionCallback } from '../interface/db_adapter';
 import { QuickSQLiteConnection, open } from '@journeyapps/react-native-quick-sqlite';
 
 const DB_NAME = 'powersync-sqlite';

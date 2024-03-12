@@ -57,7 +57,7 @@ export class OPSqliteAdapter extends AbstractDBAdapter {
   }
 
   async executeBatch(commands: SQLBatchTuple[]): Promise<ResultSet> {
-    const results = this.db.executeBatch(commands);
+    const results = await this.db.executeBatchAsync(commands);
     return {
       rowsAffected: results.rowsAffected,
     };

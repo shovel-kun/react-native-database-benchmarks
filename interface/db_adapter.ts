@@ -4,11 +4,13 @@ export interface DBAdapter {
 
     execute(sql: string, params?: any[]): Promise<ResultSet>;
 
+    /** 
+     * This runs in a transaction under the hood. There is no need to 
+     * wrap it in an explicit transaction for op-sqlite and powersync-sqlite.
+     */
     executeBatch(commands: SQLBatchTuple[]): Promise<ResultSet>;
 
     transaction(callback: TransactionCallback): Promise<void>;
-
-    manualTransaction(callback: ManualTransactionCallback): Promise<void>;
 
     close(): Promise<void>;
 }
@@ -23,22 +25,6 @@ export abstract class AbstractDBAdapter implements DBAdapter {
     abstract close(): Promise<void>;
 
     abstract executeBatch(commands: SQLBatchTuple[]): Promise<ResultSet>;
-
-    /** 
-     * Manually starts a transaction as some libraries do not support 
-     * calling a batch execute inside transaction contexts.
-    */
-    async manualTransaction(callback: ManualTransactionCallback) {
-        try {
-            await this.execute('BEGIN TRANSACTION');
-            await callback(this);
-            // await this.execute('COMMIT');
-        } catch (e) {
-            console.log(e);
-            // await this.execute('ROLLBACK');
-            throw e;
-        }
-    }
 }
 
 export interface ResultSet {
@@ -53,5 +39,3 @@ export interface SQLTransaction {
 export type TransactionCallback = (transaction: SQLTransaction) => Promise<void>;
 
 export type SQLBatchTuple = [string] | [string, Array<any> | Array<Array<any>>];
-
-export type ManualTransactionCallback = (db: DBAdapter) => Promise<void>;
