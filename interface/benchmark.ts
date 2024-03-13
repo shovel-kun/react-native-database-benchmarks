@@ -4,15 +4,15 @@ import { DBAdapter, SQLBatchTuple } from "./db_adapter";
 
 class BenchmarkResult {
     test: string;
-    duration: number;
+    duration: number | string;
 
-    constructor(test: string, duration: number) {
+    constructor(test: string, duration: number | string) {
         this.test = test;
         this.duration = duration;
     }
 
     toString(): string {
-        return `${this.test}: ${this.duration / 1000.0}s`;
+        return `${this.test}: ${this.duration}ms`;
     }
 
     toCsv(): string {
@@ -39,7 +39,7 @@ export class BenchmarkResults {
             console.log(`${name} :: ${duration}ms`);
         } catch (err) {
             if (err instanceof ClassNotImplementedError) {
-                this.results.push(new BenchmarkResult(name, 0));
+                this.results.push(new BenchmarkResult(name, 'N/A'));
                 console.log(`${name} :: ${err.message}`);
             }
         }

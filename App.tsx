@@ -5,21 +5,34 @@ import { BenchmarkSuite } from './database/benchmark-suite';
 import { OPSqliteAdapter, ExpoSqliteAdapter, PowersyncSqliteAdapter } from './adapters/adapters';
 import { BenchmarkBatched } from './interface/benchmark';
 import { ClassNotImplementedError } from './errors/errors';
+/**
+ * RNQuickSqliteAdapter requires removing the @journeyapps/react-native-quick-sqlite libraries
+ * Running the tests for that library requires a manual switch from journeyapps to react-native-quick-sqlite
+ */
+// import { RNQuickSqliteAdapter } from './adapters/rn-quick-sqlite-adapter';
 
 
 export default function App() {
   useEffect(() => {
     const runTests = async () => {
-      let opSqliteAdapter = new OPSqliteAdapter();
-      let expoSqliteAdapter = new ExpoSqliteAdapter();
-      let psSqliteAdapter = new PowersyncSqliteAdapter();
-      let benchmarks = [
-        { 'name': 'op-sqlite', 'dbAdapter': opSqliteAdapter },
-        { 'name': 'powersync-sqlite', 'dbAdapter': psSqliteAdapter },
-        { 'name': 'expo-sqlite', 'dbAdapter': expoSqliteAdapter }
-      ];
-      let benchmarkSuite = new BenchmarkSuite(benchmarks);
-      let results = await benchmarkSuite.runBenchmarks();
+      try {
+
+        let opSqliteAdapter = new OPSqliteAdapter();
+        let expoSqliteAdapter = new ExpoSqliteAdapter();
+        let psSqliteAdapter = new PowersyncSqliteAdapter();
+        // let rnQuickSqliteAdapter = new RNQuickSqliteAdapter();
+        let benchmarks = [
+          { 'name': 'op-sqlite', 'dbAdapter': opSqliteAdapter },
+          { 'name': 'ps-sqlite', 'dbAdapter': psSqliteAdapter },
+          // { 'name': 'rn-quick-sqlite', 'dbAdapter': rnQuickSqliteAdapter },
+          { 'name': 'expo-sqlite', 'dbAdapter': expoSqliteAdapter },
+        ];
+        let benchmarkSuite = new BenchmarkSuite(benchmarks);
+        await benchmarkSuite.runBenchmarks();
+
+      } catch (err) {
+        console.error(err);
+      }
     }
 
     runTests().then(() => console.log('DONE'));
@@ -27,30 +40,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Button
-        title="Run tests"
-        color="#000000"
-        onPress={async () => {
-          try {
-
-            let opSqliteAdapter = new OPSqliteAdapter();
-            let expoSqliteAdapter = new ExpoSqliteAdapter();
-            let psSqliteAdapter = new PowersyncSqliteAdapter();
-            let benchmarks = [
-              { 'name': 'op-sqlite', 'dbAdapter': opSqliteAdapter },
-              { 'name': 'expo-sqlite', 'dbAdapter': expoSqliteAdapter },
-              { 'name': 'powersync-sqlite', 'dbAdapter': psSqliteAdapter }
-            ];
-            let benchmarkSuite = new BenchmarkSuite(benchmarks);
-            await benchmarkSuite.runBenchmarks();
-            // console.log(results.toString());
-
-          } catch (err) {
-            console.error(err);
-          }
-
-        }}
-      />
+      <Text>React native benchmarks</Text>
       <StatusBar style="auto" />
     </View>
   );
