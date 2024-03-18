@@ -1,6 +1,7 @@
 import * as FileSystem from 'expo-file-system';
 
-export function randomIntFromInterval(min: number, max: number) { // min included and max excluded 
+export function randomIntFromInterval(min: number, max: number) {
+  // min included and max excluded
   return Math.random() * (max - min) + min;
 }
 
@@ -38,33 +39,10 @@ export function assertAlways(condition: boolean) {
   }
 }
 
-
-const digits = [
-  '',
-  'one',
-  'two',
-  'three',
-  'four',
-  'five',
-  'six',
-  'seven',
-  'eight',
-  'nine'
-];
+const digits = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
 const names100: string[] = [
   ...digits,
-  ...[
-    'ten',
-    'eleven',
-    'twelve',
-    'thirteen',
-    'fourteen',
-    'fifteen',
-    'sixteen',
-    'seventeen',
-    'eighteen',
-    'nineteen'
-  ],
+  ...['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'],
   ...digits.map((digit) => `twenty${digit != '' ? '-' + digit : ''}`),
   ...digits.map((digit) => `thirty${digit != '' ? '-' + digit : ''}`),
   ...digits.map((digit) => `forty${digit != '' ? '-' + digit : ''}`),
@@ -72,7 +50,7 @@ const names100: string[] = [
   ...digits.map((digit) => `sixty${digit != '' ? '-' + digit : ''}`),
   ...digits.map((digit) => `seventy${digit != '' ? '-' + digit : ''}`),
   ...digits.map((digit) => `eighty${digit != '' ? '-' + digit : ''}`),
-  ...digits.map((digit) => `ninety${digit != '' ? '-' + digit : ''}`),
+  ...digits.map((digit) => `ninety${digit != '' ? '-' + digit : ''}`)
 ];
 
 export function getDbPath(dbName: string): string {
@@ -90,4 +68,4 @@ export async function deleteDbFile(dbPath: string): Promise<void> {
   } catch (e) {
     // Ignore
   }
-} 
+}

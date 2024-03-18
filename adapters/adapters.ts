@@ -4,4 +4,4 @@ import { PowersyncSqliteAdapter } from './powersync-sqlite-adapter';
 // import { RNQuickSqliteAdapter } from './rn-quick-sqlite-adapter';
 import { ExpoNextSqliteAdapter } from './expo-next-sqlite-adapter';
 
-export { OPSqliteAdapter, ExpoSqliteAdapter, PowersyncSqliteAdapter, ExpoNextSqliteAdapter }
+export { OPSqliteAdapter, ExpoSqliteAdapter, PowersyncSqliteAdapter, ExpoNextSqliteAdapter };

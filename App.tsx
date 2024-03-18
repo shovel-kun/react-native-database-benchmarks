@@ -11,31 +11,28 @@ import { ClassNotImplementedError } from './errors/errors';
  */
 // import { RNQuickSqliteAdapter } from './adapters/rn-quick-sqlite-adapter';
 
-
 export default function App() {
   useEffect(() => {
     const runTests = async () => {
       try {
-
         let opSqliteAdapter = new OPSqliteAdapter();
         let expoSqliteAdapter = new ExpoSqliteAdapter();
         let psSqliteAdapter = new PowersyncSqliteAdapter();
         let expoNextAdapter = new ExpoNextSqliteAdapter();
         // let rnQuickSqliteAdapter = new RNQuickSqliteAdapter();
         let benchmarks = [
-          { 'name': 'op-sqlite', 'dbAdapter': opSqliteAdapter },
-          { 'name': 'ps-sqlite', 'dbAdapter': psSqliteAdapter },
+          { name: 'op-sqlite', dbAdapter: opSqliteAdapter },
+          { name: 'ps-sqlite', dbAdapter: psSqliteAdapter },
           // { 'name': 'rn-quick-sqlite', 'dbAdapter': rnQuickSqliteAdapter },
-          { 'name': 'expo-sqlite', 'dbAdapter': expoSqliteAdapter },
-          { 'name': 'expo-next-sqlite', 'dbAdapter': expoNextAdapter },
+          { name: 'expo-sqlite', dbAdapter: expoSqliteAdapter },
+          { name: 'expo-next-sqlite', dbAdapter: expoNextAdapter }
         ];
         let benchmarkSuite = new BenchmarkSuite(benchmarks);
         await benchmarkSuite.runBenchmarks();
-
       } catch (err) {
         console.error(err);
       }
-    }
+    };
 
     runTests().then(() => console.log('DONE'));
   }, []);
@@ -53,6 +50,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
-    justifyContent: 'center',
-  },
+    justifyContent: 'center'
+  }
 });
