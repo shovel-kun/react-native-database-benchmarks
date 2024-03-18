@@ -1,3 +1,5 @@
+import * as FileSystem from 'expo-file-system';
+
 export function randomIntFromInterval(min: number, max: number) { // min included and max excluded 
   return Math.random() * (max - min) + min;
 }
@@ -73,5 +75,19 @@ const names100: string[] = [
   ...digits.map((digit) => `ninety${digit != '' ? '-' + digit : ''}`),
 ];
 
+export function getDbPath(dbName: string): string {
+  const dir = FileSystem.documentDirectory;
+  return dir + 'SQLite/' + dbName;
+}
 
-
+export async function deleteDbFile(dbPath: string): Promise<void> {
+  try {
+    const { exists } = await FileSystem.getInfoAsync(dbPath);
+    if (exists) {
+      console.log('deleting db file');
+      await FileSystem.deleteAsync(dbPath);
+    }
+  } catch (e) {
+    // Ignore
+  }
+} 

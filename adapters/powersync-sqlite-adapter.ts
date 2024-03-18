@@ -1,9 +1,8 @@
-import * as FileSystem from 'expo-file-system';
 import { AbstractDBAdapter, ResultSet, SQLBatchTuple, TransactionCallback } from '../interface/db_adapter';
 import { QuickSQLiteConnection, open } from '@journeyapps/react-native-quick-sqlite';
+import { deleteDbFile, getDbPath } from '../database/utils';
 
 const DB_NAME = 'powersync-sqlite';
-const dir = FileSystem.documentDirectory;
 
 export class PowersyncSqliteAdapter extends AbstractDBAdapter {
     private _db: QuickSQLiteConnection | null;
@@ -20,22 +19,14 @@ export class PowersyncSqliteAdapter extends AbstractDBAdapter {
     }
 
     async init() {
-        const dbPath = dir + `${DB_NAME}.db`;
+        const dbPath = getDbPath(DB_NAME);
 
-        try {
-            const { exists } = await FileSystem.getInfoAsync(dbPath);
-            if (exists) {
-                console.log('deleting db file');
-                await FileSystem.deleteAsync(dbPath);
-            }
-        } catch (e) {
-            // Ignore
-        }
+        await deleteDbFile(dbPath);
 
         console.log(`Setup ps-sqlite db`);
 
         this._db = open(DB_NAME, {
-            location: dir!,
+            location: dbPath,
         });
 
         console.log(`Setup ps-sqlite done`);

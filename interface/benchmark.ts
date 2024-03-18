@@ -1,6 +1,9 @@
-import { assertAlways, numberName, randomIntFromInterval } from "../database/Utils";
+import { assertAlways, numberName, randomIntFromInterval } from "../database/utils";
 import { ClassNotImplementedError } from "../errors/errors";
 import { DBAdapter, SQLBatchTuple } from "./db_adapter";
+import Chance from 'chance';
+
+const chance = new Chance();
 
 class BenchmarkResult {
     test: string;
@@ -35,12 +38,16 @@ export class BenchmarkResults {
             await callback();
             let end = performance.now();
             let duration = end - start;
-            this.results.push(new BenchmarkResult(name, duration));
-            console.log(`${name} :: ${duration}ms`);
+            let formattedDuration = duration.toFixed(2);
+            this.results.push(new BenchmarkResult(name, formattedDuration ?? ''));
+            console.log(`${name} :: ${formattedDuration}ms`);
         } catch (err) {
             if (err instanceof ClassNotImplementedError) {
                 this.results.push(new BenchmarkResult(name, 'N/A'));
                 console.log(`${name} :: ${err.message}`);
+            } else {
+                this.results.push(new BenchmarkResult(name, 'N/A'));
+                console.log(`${name} :: ${err}`);
             }
         }
     };
@@ -66,19 +73,46 @@ class Benchmark {
 
     async setUp(): Promise<void> {
         await this.dbAdapter.init();
-        this.dbAdapter.execute('DELETE FROM t1');
-        this.dbAdapter.execute('DELETE FROM t2');
-        this.dbAdapter.execute('DELETE FROM t3');
+        await this.dbAdapter.execute('DROP TABLE IF EXISTS t1');
+        await this.dbAdapter.execute('DROP TABLE IF EXISTS t2');
+        await this.dbAdapter.execute('DROP TABLE IF EXISTS t3');
 
-        this.dbAdapter.execute(
+        await this.dbAdapter.execute(
             'CREATE TABLE IF NOT EXISTS t1(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)');
-        this.dbAdapter.execute(
+        await this.dbAdapter.execute(
             'CREATE TABLE IF NOT EXISTS t2(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)');
-
-        this.dbAdapter.execute(
+        await this.dbAdapter.execute(
             'CREATE TABLE IF NOT EXISTS t3(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)');
-        this.dbAdapter.execute('CREATE INDEX IF NOT EXISTS i3a ON t3(a)');
-        this.dbAdapter.execute('CREATE INDEX IF NOT EXISTS i3b ON t3(b)');
+        await this.dbAdapter.execute('CREATE INDEX IF NOT EXISTS i3a ON t3(a)');
+        await this.dbAdapter.execute('CREATE INDEX IF NOT EXISTS i3b ON t3(b)');
+
+        //Setup 300k records
+        await this.dbAdapter.execute('DROP TABLE IF EXISTS Test;');
+        await this.dbAdapter.execute(
+            'CREATE TABLE Test (id INT PRIMARY KEY, v1 TEXT, v2 TEXT, v3 TEXT, v4 TEXT, v5 TEXT, v6 INT, v7 INT, v8 INT, v9 INT, v10 INT, v11 REAL, v12 REAL, v13 REAL, v14 REAL) STRICT;',
+        );
+        await this.dbAdapter.transaction(async tx => {
+            for (let i = 0; i < 300000; i++) {
+                await tx.execute('INSERT INTO "Test" (id, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [
+                        i,
+                        chance.name(),
+                        chance.name(),
+                        chance.name(),
+                        chance.name(),
+                        chance.name(),
+                        chance.integer(),
+                        chance.integer(),
+                        chance.integer(),
+                        chance.integer(),
+                        chance.integer(),
+                        chance.floating(),
+                        chance.floating(),
+                        chance.floating(),
+                        chance.floating(),
+                    ],);
+            }
+        });
     }
 
     async runAll(): Promise<BenchmarkResults> {
@@ -131,6 +165,9 @@ class Benchmark {
         await results.record('Test 16: Clear table', async () => {
             await this.test16();
         });
+        await results.record('Test 17: Query 300k records', async () => {
+            await this.test17();
+        })
 
         await this.tearDown();
         return results;
@@ -168,15 +205,10 @@ class Benchmark {
     async test4(): Promise<void> {
         await this.dbAdapter.transaction(async tx => {
             for (let i = 0; i < 100; ++i) {
-                const result = await tx.execute(
+                await tx.execute(
                     'SELECT count(*) count, avg(b) avg FROM t2 WHERE b>=? AND b<?',
                     [i * 100, i * 100 + 1000],
                 );
-                // console.log(JSON.stringify(result) + ' ' + i);
-                // assertAlways(result.rows !== null && result.rows[0]['count'] > 200);
-                // assertAlways(result.rows[0]['count'] < 300);
-                // assertAlways(result.rows[0]['avg'] > i * 100);
-                // assertAlways(result.rows[0]['avg'] < i * 100 + 1000);
             }
         });
     }
@@ -187,11 +219,6 @@ class Benchmark {
                 const result = await tx.execute(
                     'SELECT count(*) count, avg(b) avg FROM t2 WHERE c LIKE ?',
                     [`%${numberName(i + 1)}%`]);
-                // console.log(result.rows?._array);
-                // assertAlways(result.rows?._array !== null);
-                // assertAlways(result.rows!._array[0]['count'] > 400);
-                // assertAlways(result.rows!._array[0]['count'] < 12000);
-                // assertAlways(result.rows!._array[0]['avg'] > 30000);
             }
         });
     }
@@ -203,12 +230,6 @@ class Benchmark {
                 const result = await tx.execute(
                     'SELECT count(*) count, avg(b) avg FROM t3 WHERE b>=? AND b<?',
                     [i * 100, i * 100 + 100]);
-                // if (i < 1000) {
-                //     assertAlways(result.rows[0]['count'] > 10);
-                //     assertAlways(result.rows[0]['count'] < 100);
-                // } else {
-                //     assertAlways(result.rows[0]['count'] === 0);
-                // }
             }
         });
     }
@@ -299,15 +320,15 @@ class Benchmark {
         var row1 = await this.dbAdapter.execute('SELECT count() count FROM t1');
         var row2 = await this.dbAdapter.execute('SELECT count() count FROM t2');
         var row3 = await this.dbAdapter.execute('SELECT count() count FROM t3');
-        // assertAlways(row1.rows[0]['count'] == 12000);
-        // assertAlways(row2.rows[0]['count'] == 25000);
-        // assertAlways(row3.rows[0]['count'] > 34000);
-        // assertAlways(row3.rows[0]['count'] < 36000);
 
         await this.dbAdapter.execute('DELETE FROM t1');
         await this.dbAdapter.execute('DELETE FROM t2');
         await this.dbAdapter.execute('DELETE FROM t3');
         await this.dbAdapter.execute('PRAGMA wal_checkpoint(RESTART)');
+    }
+
+    async test17(): Promise<void> {
+        await this.dbAdapter.execute('SELECT * FROM Test;');
     }
 
     async tearDown(): Promise<void> {
@@ -417,11 +438,6 @@ export class BenchmarkBatched extends Benchmark {
                     'SELECT count(*) count, avg(b) avg FROM t2 WHERE b>=? AND b<?',
                     [i * 100, i * 100 + 1000],
                 );
-                // console.log(JSON.stringify(result) + ' ' + i);
-                // assertAlways(result.rows !== null && result.rows[0]['count'] > 200);
-                // assertAlways(result.rows[0]['count'] < 300);
-                // assertAlways(result.rows[0]['avg'] > i * 100);
-                // assertAlways(result.rows[0]['avg'] < i * 100 + 1000);
             }
         });
     }
@@ -432,11 +448,6 @@ export class BenchmarkBatched extends Benchmark {
                 const result = await tx.execute(
                     'SELECT count(*) count, avg(b) avg FROM t2 WHERE c LIKE ?',
                     [`%${numberName(i + 1)}%`]);
-                // console.log(result.rows?._array);
-                // assertAlways(result.rows?._array !== null);
-                // assertAlways(result.rows!._array[0]['count'] > 400);
-                // assertAlways(result.rows!._array[0]['count'] < 12000);
-                // assertAlways(result.rows!._array[0]['avg'] > 30000);
             }
         });
     }
@@ -448,12 +459,6 @@ export class BenchmarkBatched extends Benchmark {
                 const result = await tx.execute(
                     'SELECT count(*) count, avg(b) avg FROM t3 WHERE b>=? AND b<?',
                     [i * 100, i * 100 + 100]);
-                // if (i < 1000) {
-                //     assertAlways(result.rows[0]['count'] > 10);
-                //     assertAlways(result.rows[0]['count'] < 100);
-                // } else {
-                //     assertAlways(result.rows[0]['count'] === 0);
-                // }
             }
         });
     }
@@ -534,10 +539,6 @@ export class BenchmarkBatched extends Benchmark {
         var row1 = await this.dbAdapter.execute('SELECT count() count FROM t1');
         var row2 = await this.dbAdapter.execute('SELECT count() count FROM t2');
         var row3 = await this.dbAdapter.execute('SELECT count() count FROM t3');
-        // assertAlways(row1.rows[0]['count'] == 12000);
-        // assertAlways(row2.rows[0]['count'] == 25000);
-        // assertAlways(row3.rows[0]['count'] > 34000);
-        // assertAlways(row3.rows[0]['count'] < 36000);
 
         await this.dbAdapter.execute('DELETE FROM t1');
         await this.dbAdapter.execute('DELETE FROM t2');

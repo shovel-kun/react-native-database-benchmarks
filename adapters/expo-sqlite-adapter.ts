@@ -1,11 +1,10 @@
 import * as SQLite from 'expo-sqlite';
-import * as FileSystem from 'expo-file-system';
 import { AbstractDBAdapter, DBAdapter, ResultSet, SQLBatchTuple, TransactionCallback } from '../interface/db_adapter';
 import { ClassNotImplementedError } from '../errors/errors';
+import { deleteDbFile, getDbPath } from '../database/utils';
 
 
 const DB_NAME = 'expo-sqlite';
-const dir = FileSystem.documentDirectory;
 
 export async function setupDb() {
 
@@ -25,17 +24,9 @@ export class ExpoSqliteAdapter extends AbstractDBAdapter {
     }
 
     async init() {
-        const dbPath = dir + 'SQLite/' + DB_NAME;
+        const dbPath = getDbPath(DB_NAME);
 
-        try {
-            const { exists } = await FileSystem.getInfoAsync(dbPath);
-            if (exists) {
-                console.log('deleting db file');
-                await FileSystem.deleteAsync(dbPath);
-            }
-        } catch (e) {
-            // Ignore
-        }
+        await deleteDbFile(dbPath);
 
         console.log(`Setup expo db`);
         this._db = SQLite.openDatabase(DB_NAME);

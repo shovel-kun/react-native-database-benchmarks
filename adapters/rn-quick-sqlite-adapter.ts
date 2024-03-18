@@ -4,13 +4,11 @@
  * their build configs conflict.
  */
 
-// import * as FileSystem from 'expo-file-system';
 // import { AbstractDBAdapter, ResultSet, SQLBatchTuple, TransactionCallback } from '../interface/db_adapter';
-
 // import { QuickSQLiteConnection, open } from 'react-native-quick-sqlite';
+// import { deleteDbFile, getDbPath } from '../database/utils';
 
 // const DB_NAME = 'rn-quick-sqlite';
-// const dir = FileSystem.documentDirectory;
 
 // export class RNQuickSqliteAdapter extends AbstractDBAdapter {
 //     private _db: QuickSQLiteConnection | null;
@@ -27,33 +25,18 @@
 //     }
 
 //     async init() {
-//         const dbPath = dir + `${DB_NAME}.db`;
+//         const dbPath = getDbPath(DB_NAME);
 
-//         try {
-//             const { exists } = await FileSystem.getInfoAsync(dbPath);
-//             if (exists) {
-//                 console.log('deleting db file');
-//                 await FileSystem.deleteAsync(dbPath);
-//             }
-//         } catch (e) {
-//             // Ignore
-//         }
+// await deleteDbFile(dbPath);
 
-//         console.log(`Setup ps-sqlite db`);
+//         console.log(`Setup rn-sqlite db`);
 
-//         // this._db = open(DB_NAME, {
-//         //     location: dir!,
-//         // });
-//         /**
-//          * This is used to manually swap between journeyapps/react-native-quick-sqlite (fork)
-//          * and react-native-quick-sqlite.
-//          */
 //         this._db = open({
 //             name: DB_NAME,
-//             location: dir!,
+//             location: dbPath,
 //         });
 
-//         console.log(`Setup ps-sqlite done`);
+//         console.log(`Setup rn-sqlite done`);
 //     }
 
 //     async execute(sql: string, params?: any[]): Promise<ResultSet> {

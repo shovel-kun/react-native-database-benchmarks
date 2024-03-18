@@ -1,9 +1,8 @@
-import * as FileSystem from 'expo-file-system';
 import { OPSQLiteConnection, open } from '@op-engineering/op-sqlite';
 import { AbstractDBAdapter, DBAdapter, ResultSet, SQLBatchTuple, TransactionCallback } from '../interface/db_adapter';
+import { deleteDbFile, getDbPath } from '../database/utils';
 
 const DB_NAME = 'op-sqlite';
-const dir = FileSystem.documentDirectory;
 
 export class OPSqliteAdapter extends AbstractDBAdapter {
   private _db: OPSQLiteConnection | null;
@@ -19,20 +18,13 @@ export class OPSqliteAdapter extends AbstractDBAdapter {
   }
 
   async init() {
-    const dbPath = dir + `${DB_NAME}.db`;
+    const dbPath = getDbPath(DB_NAME);
 
-    try {
-      const { exists } = await FileSystem.getInfoAsync(dbPath);
-      if (exists) {
-        console.log('deleting db file');
-        await FileSystem.deleteAsync(dbPath);
-      }
-    } catch (e) {
-      // Ignore
-    }
+    await deleteDbFile(dbPath);
+
     const DB_CONFIG = {
       name: DB_NAME,
-      location: dir!
+      location: dbPath
     };
 
     console.log(`Setup op-sqlite db`);

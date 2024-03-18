@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import { BenchmarkSuite } from './database/benchmark-suite';
-import { OPSqliteAdapter, ExpoSqliteAdapter, PowersyncSqliteAdapter } from './adapters/adapters';
+import { OPSqliteAdapter, ExpoSqliteAdapter, PowersyncSqliteAdapter, ExpoNextSqliteAdapter } from './adapters/adapters';
 import { BenchmarkBatched } from './interface/benchmark';
 import { ClassNotImplementedError } from './errors/errors';
 /**
@@ -20,12 +20,14 @@ export default function App() {
         let opSqliteAdapter = new OPSqliteAdapter();
         let expoSqliteAdapter = new ExpoSqliteAdapter();
         let psSqliteAdapter = new PowersyncSqliteAdapter();
+        let expoNextAdapter = new ExpoNextSqliteAdapter();
         // let rnQuickSqliteAdapter = new RNQuickSqliteAdapter();
         let benchmarks = [
           { 'name': 'op-sqlite', 'dbAdapter': opSqliteAdapter },
           { 'name': 'ps-sqlite', 'dbAdapter': psSqliteAdapter },
           // { 'name': 'rn-quick-sqlite', 'dbAdapter': rnQuickSqliteAdapter },
           { 'name': 'expo-sqlite', 'dbAdapter': expoSqliteAdapter },
+          { 'name': 'expo-next-sqlite', 'dbAdapter': expoNextAdapter },
         ];
         let benchmarkSuite = new BenchmarkSuite(benchmarks);
         await benchmarkSuite.runBenchmarks();
