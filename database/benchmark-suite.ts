@@ -33,10 +33,4 @@ export class BenchmarkSuite {
             console.log(s);
         }
     }
-
-    async runBatchedBenchmarks() {
-        for (const benchmark of this.benchmarks) {
-
-        }
-    }
 }

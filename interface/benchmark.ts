@@ -167,7 +167,7 @@ class Benchmark {
         });
         await results.record('Test 17: Query 300k records', async () => {
             await this.test17();
-        })
+        });
 
         await this.tearDown();
         return results;
@@ -395,18 +395,12 @@ export class BenchmarkBatched extends Benchmark {
         await results.record('Test 16: Clear table', async () => {
             await super.test16();
         });
+        await results.record('Test 17: Query 300k records', async () => {
+            await super.test17();
+        });
 
         await super.tearDown();
         return results;
-    }
-
-    /// Test 1: 1000 INSERTs
-    async test1(): Promise<void> {
-        for (let i = 0; i < 1000; i++) {
-            const n = randomIntFromInterval(0, 100000);
-            await this.dbAdapter.execute('INSERT INTO t1(a, b, c) VALUES(?, ?, ?)', [i + 1, n, numberName(n)]);
-        }
-        await this.dbAdapter.execute('PRAGMA wal_checkpoint(RESTART)');
     }
     /// Test 2: 25000 INSERTs in a transaction
     async test2(): Promise<void> {
@@ -429,50 +423,6 @@ export class BenchmarkBatched extends Benchmark {
         }
         await this.dbAdapter.executeBatch(params);
         await this.dbAdapter.execute('PRAGMA wal_checkpoint(RESTART)');
-    }
-    /// Test 4: 100 SELECTs without an index
-    async test4(): Promise<void> {
-        await this.dbAdapter.transaction(async tx => {
-            for (let i = 0; i < 100; ++i) {
-                const result = await tx.execute(
-                    'SELECT count(*) count, avg(b) avg FROM t2 WHERE b>=? AND b<?',
-                    [i * 100, i * 100 + 1000],
-                );
-            }
-        });
-    }
-    /// Test 5: 100 SELECTs on a string comparison
-    async test5(): Promise<void> {
-        await this.dbAdapter.transaction(async tx => {
-            for (let i = 0; i < 100; ++i) {
-                const result = await tx.execute(
-                    'SELECT count(*) count, avg(b) avg FROM t2 WHERE c LIKE ?',
-                    [`%${numberName(i + 1)}%`]);
-            }
-        });
-    }
-
-    /// Test 7: 5000 SELECTs with an index
-    async test7(): Promise<void> {
-        await this.dbAdapter.transaction(async tx => {
-            for (let i = 0; i < 5000; ++i) {
-                const result = await tx.execute(
-                    'SELECT count(*) count, avg(b) avg FROM t3 WHERE b>=? AND b<?',
-                    [i * 100, i * 100 + 100]);
-            }
-        });
-    }
-
-    /// Test 8: 1000 UPDATEs without an index
-    async test8(): Promise<void> {
-        await this.dbAdapter.transaction(async tx => {
-            for (let i = 0; i < 1000; ++i) {
-                await tx.execute(
-                    'UPDATE t1 SET b=b*2 WHERE a>=? AND a<?',
-                    [i * 10, i * 10 + 10],
-                );
-            }
-        });
     }
 
     /// Test 9: 25000 UPDATEs with an index
@@ -499,29 +449,6 @@ export class BenchmarkBatched extends Benchmark {
         await this.dbAdapter.execute('PRAGMA wal_checkpoint(RESTART)');
     }
 
-    /// Test 11: INSERTs from a SELECT
-    async test11(): Promise<void> {
-        await this.dbAdapter.transaction(async tx => {
-            await tx.execute('INSERT INTO t1(a, b, c) SELECT b,a,c FROM t3');
-            await tx.execute('INSERT INTO t3(a, b, c) SELECT b,a,c FROM t1');
-        });
-    }
-
-    /// Test 12: DELETE without an index
-    async test12(): Promise<void> {
-        await this.dbAdapter.execute("DELETE FROM t3 WHERE c LIKE '%fifty%'");
-    }
-
-    /// Test 13: DELETE with an index
-    async test13(): Promise<void> {
-        await this.dbAdapter.execute('DELETE FROM t3 WHERE a>10 AND a<20000');
-    }
-
-    /// Test 14: A big INSERT after a big DELETE
-    async test14(): Promise<void> {
-        await this.dbAdapter.execute('INSERT INTO t3(a, b, c) SELECT a, b, c FROM t1');
-    }
-
     /// Test 15: A big DELETE followed by many small INSERTs
     async test15(): Promise<void> {
         await this.dbAdapter.execute('DELETE FROM t1');
@@ -532,17 +459,6 @@ export class BenchmarkBatched extends Benchmark {
             params.push([query, [i + 1, n, numberName(n)]]);
         }
         await this.dbAdapter.executeBatch(params);
-        await this.dbAdapter.execute('PRAGMA wal_checkpoint(RESTART)');
-    }
-
-    async test16(): Promise<void> {
-        var row1 = await this.dbAdapter.execute('SELECT count() count FROM t1');
-        var row2 = await this.dbAdapter.execute('SELECT count() count FROM t2');
-        var row3 = await this.dbAdapter.execute('SELECT count() count FROM t3');
-
-        await this.dbAdapter.execute('DELETE FROM t1');
-        await this.dbAdapter.execute('DELETE FROM t2');
-        await this.dbAdapter.execute('DELETE FROM t3');
         await this.dbAdapter.execute('PRAGMA wal_checkpoint(RESTART)');
     }
 
