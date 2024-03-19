@@ -55,7 +55,7 @@ const names100: string[] = [
 
 export function getDbPath(dbName: string): string {
   const dir = FileSystem.documentDirectory;
-  return dir + 'SQLite/' + dbName;
+  return dir! + 'SQLite/' + dbName;
 }
 
 export async function deleteDbFile(dbPath: string): Promise<void> {
