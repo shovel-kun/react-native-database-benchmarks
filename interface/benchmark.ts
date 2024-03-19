@@ -1,4 +1,4 @@
-import { assertAlways, numberName, randomIntFromInterval } from '../database/utils';
+import { assertAlways, numberName, randomIntFromInterval, roundToTwoDigits } from '../database/utils';
 import { ClassNotImplementedError } from '../errors/errors';
 import { DBAdapter, SQLBatchTuple } from './db_adapter';
 import Chance from 'chance';
@@ -38,7 +38,7 @@ export class BenchmarkResults {
       await callback();
       let end = performance.now();
       let duration = end - start;
-      let formattedDuration = duration.toFixed(2);
+      let formattedDuration = roundToTwoDigits(duration);
       this.results.push(new BenchmarkResult(name, formattedDuration ?? ''));
       console.log(`${name} :: ${formattedDuration}ms`);
     } catch (err) {

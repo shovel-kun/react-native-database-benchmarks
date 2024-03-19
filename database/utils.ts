@@ -69,3 +69,7 @@ export async function deleteDbFile(dbPath: string): Promise<void> {
     // Ignore
   }
 }
+
+export function roundToTwoDigits(duration: number) {
+  return Math.round((duration + Number.EPSILON) * 100) / 100;
+}
