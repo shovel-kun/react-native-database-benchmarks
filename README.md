@@ -46,3 +46,4 @@ Expo sqlite does not support batching of queries out the box. The results for th
 - npx expo install react-native-quick-sqlite
 - Comment out the code in the file referencing PowersyncSqliteAdapter which includes `adapters/powersync-sqlite-adapter.ts`. Also comment out lines 6, 19 and 24 in `App.tsx`.
 - Uncomment out the code referencing react-native-quick-sqlite (line 6 onwards) in `adapters/rn-quick-sqlite-adapter.ts` and lines 11, 21 and 25 in `App.tsx`.
+- You can to the inverse of the above steps to test the powersync fork of react-native-quick-sqlite

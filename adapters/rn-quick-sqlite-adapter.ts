@@ -3,7 +3,6 @@
  * and react-native-quick-sqlite. They cannot both be imported into the same project as
  * their build configs conflict.
  */
-
 // import { AbstractDBAdapter, ResultSet, SQLBatchTuple, TransactionCallback } from '../interface/db_adapter';
 // import { QuickSQLiteConnection, open } from 'react-native-quick-sqlite';
 // import { deleteDbFile, getDbPath } from '../database/utils';
