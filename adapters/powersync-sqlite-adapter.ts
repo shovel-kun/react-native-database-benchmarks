@@ -22,13 +22,13 @@ export class PowersyncSqliteAdapter extends AbstractDBAdapter {
 
     await deleteDbFile(dbPath);
 
-    console.log(`Setup ps-sqlite db`);
+    console.log(`Open powersync-sqlite db`);
 
     this._db = open(DB_NAME, {
       location: dbPath
     });
 
-    console.log(`Setup ps-sqlite done`);
+    console.log(`Open powersync-sqlite db done`);
   }
 
   async execute(sql: string, params?: any[]): Promise<ResultSet> {
@@ -48,7 +48,6 @@ export class PowersyncSqliteAdapter extends AbstractDBAdapter {
 
   async transaction(callback: TransactionCallback): Promise<void> {
     return await this.db.writeTransaction(async (context) => {
-      // call the callback, but map the transaction context
       return callback({
         execute: async (sql: string, params: []) => {
           const result = await context.execute(sql, params);

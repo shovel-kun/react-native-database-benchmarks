@@ -1,5 +1,6 @@
 import Benchmark, { BenchmarkBatched, BenchmarkResults } from '../interface/benchmark';
 import { DBAdapter } from '../interface/db_adapter';
+import { roundToTwoDigits } from './utils';
 
 export class BenchmarkSuite {
   benchmarks: { name: string; dbAdapter: DBAdapter }[];
@@ -17,10 +18,7 @@ export class BenchmarkSuite {
       results.push(await bmb.runAll());
     }
     console.log('');
-    let s = ',Test';
-    for (const result of results) {
-      s += `,${result.suite}`;
-    }
+    let s = `,Test,${results.map((r) => r.suite).join(',')}`;
     console.log(s);
     let first: BenchmarkResults = results[0];
     for (let i = 0; i < first.results.length; i++) {

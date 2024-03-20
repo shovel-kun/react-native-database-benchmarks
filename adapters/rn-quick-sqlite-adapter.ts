@@ -27,14 +27,14 @@
 
 //     await deleteDbFile(dbPath);
 
-//     console.log(`Setup rn-sqlite db`);
+//     console.log(`Open rnq-sqlite db`);
 
 //     this._db = open({
 //       name: DB_NAME,
 //       location: dbPath
 //     });
 
-//     console.log(`Setup rn-sqlite done`);
+//     console.log(`Open rnq-sqlite db done`);
 //   }
 
 //   async execute(sql: string, params?: any[]): Promise<ResultSet> {
@@ -48,7 +48,7 @@
 
 //   async executeBatch(commands: SQLBatchTuple[]): Promise<ResultSet> {
 //     // const results = await this.db.executeBatch(commands);
-//     const results = this.db.executeBatch(commands);
+//     const results = await this.db.executeBatchAsync(commands);
 //     return {
 //       rowsAffected: results.rowsAffected
 //     };
@@ -56,11 +56,10 @@
 
 //   async transaction(callback: TransactionCallback): Promise<void> {
 //     return await this.db.transaction(async (context) => {
-//       // call the callback, but map the transaction context
 //       return callback({
 //         execute: async (sql: string, params: []) => {
 //           // const result = await context.execute(sql, params);
-//           const result = context.execute(sql, params);
+//           const result = await context.executeAsync(sql, params);
 //           return {
 //             rows: result.rows?._array ?? []
 //           };

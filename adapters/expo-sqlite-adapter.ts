@@ -23,18 +23,13 @@ export class ExpoSqliteAdapter extends AbstractDBAdapter {
 
     await deleteDbFile(dbPath);
 
-    console.log(`Setup expo db`);
+    console.log(`Open expo db`);
     this._db = SQLite.openDatabase(DB_NAME);
-    console.log(`Setup expo done`);
+    console.log(`Open expo db done`);
   }
 
   async execute(sql: string, params?: any[]): Promise<ResultSet> {
-    let results;
-    if (params != null && params!.length > 0) {
-      results = await this.db.execAsync([{ sql: sql, args: [...params] }], false);
-    } else {
-      results = await this.db.execAsync([{ sql: sql, args: [] }], false);
-    }
+    let results = await this.db.execAsync([{ sql: sql, args: params ?? [] }], false);
     const result = results[0];
     if (this.isResultSetError(result)) {
       throw result.error;
@@ -55,7 +50,6 @@ export class ExpoSqliteAdapter extends AbstractDBAdapter {
 
   async transaction(callback: TransactionCallback): Promise<void> {
     return await this.db.transactionAsync(async (context) => {
-      // call the callback, but map the transaction context
       return callback({
         execute: async (sql: string, params: any[]) => {
           const result = await context.executeSqlAsync(sql, params);

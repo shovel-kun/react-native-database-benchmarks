@@ -27,11 +27,11 @@ export class OPSqliteAdapter extends AbstractDBAdapter {
       location: dbPath
     };
 
-    console.log(`Setup op-sqlite db`);
+    console.log(`Open op-sqlite db`);
 
     this._db = open(DB_CONFIG);
 
-    console.log(`Setup op-sqlite done`);
+    console.log(`Open op-sqlite db done`);
   }
 
   async executeSync(sql: string, params?: any[]): Promise<ResultSet> {

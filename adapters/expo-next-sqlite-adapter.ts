@@ -23,18 +23,13 @@ export class ExpoNextSqliteAdapter extends AbstractDBAdapter {
 
     await deleteDbFile(dbPath);
 
-    console.log(`Setup expo-next db`);
+    console.log(`Open expo/next db`);
     this._db = await SQLite.openDatabaseAsync(DB_NAME);
-    console.log(`Setup expo-next done`);
+    console.log(`Open expo/next db done`);
   }
 
   async execute(sql: string, params?: any[]): Promise<ResultSet> {
-    let results: SQLite.SQLiteRunResult;
-    if (params != null && params!.length > 0) {
-      results = await this.db.runAsync(sql, params);
-    } else {
-      results = await this.db.runAsync(sql, []);
-    }
+    let results: SQLite.SQLiteRunResult = await this.db.runAsync(sql, params ?? []);
     const result = results.changes;
     return {
       rows: [],
@@ -44,17 +39,10 @@ export class ExpoNextSqliteAdapter extends AbstractDBAdapter {
 
   async executeBatch(commands: SQLBatchTuple[]): Promise<ResultSet> {
     throw new ClassNotImplementedError('ExecuteBatch() method not implemented.');
-    // let sql: string = '';
-    // for (let command in commands) {
-    //     sql += `${command}\n`;
-    // }
-    // await this.db.execAsync(sql);
-    // return {};
   }
 
   async transaction(callback: TransactionCallback): Promise<void> {
     return await this.db.withTransactionAsync(async () => {
-      // call the callback, but map the transaction context
       return callback({
         execute: async (sql: string, params: any[]) => {
           const result = await this.db.runAsync(sql, params);
