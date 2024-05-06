@@ -9,8 +9,8 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@journeyapps/react-native-quick-sqlite": "^1.1.2",
-    "@op-engineering/op-sqlite": "^2.0.20",
+    "@journeyapps/react-native-quick-sqlite": "^1.1.5",
+    "@op-engineering/op-sqlite": "^5.0.5",
     "@types/chance": "^1.1.6",
     "@types/react": "~18.2.45",
     "base-64": "^1.0.0",
@@ -22,7 +22,7 @@
     "expo-file-system": "~16.0.8",
     "expo-linking": "~6.2.2",
     "expo-router": "~3.4.8",
-    "expo-sqlite": "~13.3.0",
+    "expo-sqlite": "~13.4.0",
     "expo-status-bar": "~1.11.1",
     "react": "18.2.0",
     "react-native": "0.73.4",
@@ -40,5 +40,8 @@
   "devDependencies": {
     "@babel/core": "^7.20.0"
   },
-  "private": true
+  "private": true,
+  "op-sqlite": {
+	  "performanceMode": "1"
+	}
 }
