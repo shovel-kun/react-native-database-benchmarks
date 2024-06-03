@@ -11,8 +11,20 @@ A project to compare performance between various databases on React Native.
 
 Please ensure you have generated the native bindings before running the app.
 
-- expo start --android
-- expo start --ios
+## Android
+
+1. Open the `android` directory in Android Studio.
+2. It will take some time to sync and build gradle dependencies.
+3. Select `Build` in the top menu > Select `Build Variant`.
+4. Change the `:app` active build variant to `release`.
+5. Run the app using the default configuration.
+6. Look out for the logs in the logcat tab of Android Studio.
+
+## iOS
+
+1. Open the `ios/reactnativedatabasebenchmarks.xcworkspace` in xcode.
+2. Edit the scheme and choose the `Release` build configuration for the run.
+3. Click the play button to run the app.
 
 ## Benchmark limitations
 
@@ -23,15 +35,15 @@ Please ensure you have generated the native bindings before running the app.
 
 ### OP SQLite
 
-OP SQLite can be run using a performance mode flag. Using the following commands to set this up for the project. This must be done before the project is built.
+OP SQLite can be run using a performance mode fla set in the `package.json` file. Using the following commands to set this up for the project. This must be done before the project is built.
 
-The performance flag allows to tweak all possible performance enhancing compilation flags
+`1` is thread unsafe, you should only use transactions but will be the fastest option for single operations. `2` is thread-safe and marginally slower.
 
-- OP_SQLITE_PERF=1 npx pod-install
-
-SQLite native thread safety at the cost of some performance.
-
-- OP_SQLITE_PERF=2 npx pod-install
+```
+"op-sqlite": {
+    "performanceMode": "1"
+}
+```
 
 ### Expo-sqlite
 
