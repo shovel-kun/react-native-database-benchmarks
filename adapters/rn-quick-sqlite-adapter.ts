@@ -27,14 +27,11 @@
 
 //     await deleteDbFile(dbPath);
 
-//     console.log(`Open rnq-sqlite db`);
-
 //     this._db = open({
 //       name: DB_NAME,
 //       location: dbPath
 //     });
 
-//     console.log(`Open rnq-sqlite db done`);
 //   }
 
 //   async execute(sql: string, params?: any[]): Promise<ResultSet> {

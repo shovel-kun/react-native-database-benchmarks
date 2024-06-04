@@ -23,9 +23,7 @@ export class ExpoNextSqliteAdapter extends AbstractDBAdapter {
 
     await deleteDbFile(dbPath);
 
-    console.log(`Open expo/next db`);
     this._db = await SQLite.openDatabaseAsync(DB_NAME);
-    console.log(`Open expo/next db done`);
   }
 
   async execute(sql: string, params?: any[]): Promise<ResultSet> {

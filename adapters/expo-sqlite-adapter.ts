@@ -23,24 +23,15 @@ export class ExpoSqliteAdapter extends AbstractDBAdapter {
 
     await deleteDbFile(dbPath);
 
-    console.log(`Open expo db`);
-    this._db = SQLite.openDatabase(DB_NAME);
-    console.log(`Open expo db done`);
+    this._db = await SQLite.openDatabaseAsync(DB_NAME);
   }
 
   async execute(sql: string, params?: any[]): Promise<ResultSet> {
-    let results = await this.db.execAsync([{ sql: sql, args: params ?? [] }], false);
-    const result = results[0];
-    if (this.isResultSetError(result)) {
-      throw result.error;
-    }
-    if (this.isResultSet(result)) {
-      return {
-        rows: result.rows
-      };
-    }
+    let result: SQLite.SQLiteRunResult = await this.db.runAsync(sql, params ?? []);
+    // const result = results[0];
     return {
-      rows: []
+      rows: [],
+      rowsAffected: result.changes
     };
   }
 
@@ -49,12 +40,13 @@ export class ExpoSqliteAdapter extends AbstractDBAdapter {
   }
 
   async transaction(callback: TransactionCallback): Promise<void> {
-    return await this.db.transactionAsync(async (context) => {
+    return await this.db.withTransactionAsync(async () => {
       return callback({
         execute: async (sql: string, params: any[]) => {
-          const result = await context.executeSqlAsync(sql, params);
+          const result = await this.db.runAsync(sql, params);
           return {
-            rows: result.rows ?? []
+            rows: [],
+            rowsAffected: result.changes
           };
         }
       });
@@ -63,13 +55,5 @@ export class ExpoSqliteAdapter extends AbstractDBAdapter {
 
   async close(): Promise<void> {
     await this.db.closeAsync();
-  }
-
-  isResultSet(result: SQLite.ResultSetError | SQLite.ResultSet): result is SQLite.ResultSet {
-    return (result as SQLite.ResultSet).rows !== undefined;
-  }
-
-  isResultSetError(result: SQLite.ResultSetError | SQLite.ResultSet): result is SQLite.ResultSetError {
-    return (result as SQLite.ResultSetError).error !== undefined;
   }
 }

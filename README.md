@@ -2,6 +2,12 @@
 
 A project to compare performance between various databases on React Native.
 
+## Install dependencies
+
+You can install dependencies using yarn
+
+- `yarn install`
+
 ## Generate Android and iOS native bindings
 
 - npx expo run:android

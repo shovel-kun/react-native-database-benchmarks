@@ -22,13 +22,9 @@ export class PowersyncSqliteAdapter extends AbstractDBAdapter {
 
     await deleteDbFile(dbPath);
 
-    console.log(`Open powersync-sqlite db`);
-
     this._db = open(DB_NAME, {
       location: dbPath
     });
-
-    console.log(`Open powersync-sqlite db done`);
   }
 
   async execute(sql: string, params?: any[]): Promise<ResultSet> {
