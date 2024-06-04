@@ -24,6 +24,8 @@ export class ExpoNextSqliteAdapter extends AbstractDBAdapter {
     await deleteDbFile(dbPath);
 
     this._db = await SQLite.openDatabaseAsync(DB_NAME);
+
+    await this._db.execAsync('PRAGMA journal_mode = WAL');
   }
 
   async execute(sql: string, params?: any[]): Promise<ResultSet> {
