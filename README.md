@@ -24,7 +24,9 @@ Please ensure you have generated the native bindings before running the app.
 3. Select `Build` in the top menu > Select `Build Variant`.
 4. Change the `:app` active build variant to `release`.
 5. Run the app using the default configuration.
-6. Look out for the logs in the logcat tab of Android Studio.
+6. Click on the `Logcat` option in the bottom tool window (under the Run button).
+7. You can use the `package:mine` filter in the filter bar to filter the results.
+8. Once all the benchmarks are done running, it will print out the results in the log for all the tests in a CSV format.
 
 ## iOS
 
