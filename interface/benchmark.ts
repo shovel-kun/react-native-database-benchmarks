@@ -70,7 +70,7 @@ class Benchmark {
     this.dbAdapter = dbAdapter;
   }
 
-  async setUp(): Promise<void> {
+  async setUp(includeTest17: boolean): Promise<void> {
     await this.dbAdapter.init();
 
     await this.dbAdapter.execute('CREATE TABLE IF NOT EXISTS t1(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)');
@@ -79,45 +79,54 @@ class Benchmark {
     await this.dbAdapter.execute('CREATE INDEX IF NOT EXISTS i3a ON t3(a)');
     await this.dbAdapter.execute('CREATE INDEX IF NOT EXISTS i3b ON t3(b)');
 
-    console.log('Setting up database with 300K records, this might take a while...');
-    //Setup 300k records
-    await this.dbAdapter.execute(
-      'CREATE TABLE Test (id INT PRIMARY KEY, v1 TEXT, v2 TEXT, v3 TEXT, v4 TEXT, v5 TEXT, v6 INT, v7 INT, v8 INT, v9 INT, v10 INT, v11 REAL, v12 REAL, v13 REAL, v14 REAL) STRICT;'
-    );
+    if (includeTest17) {
+      console.log('Setting up database with 300K records, this might take a while...');
+      //Setup 300k records
+      await this.dbAdapter.execute(
+        'CREATE TABLE Test (id INT PRIMARY KEY, v1 TEXT, v2 TEXT, v3 TEXT, v4 TEXT, v5 TEXT, v6 INT, v7 INT, v8 INT, v9 INT, v10 INT, v11 REAL, v12 REAL, v13 REAL, v14 REAL) STRICT;'
+      );
 
-    await this.dbAdapter.execute('PRAGMA mmap_size=268435456');
+      await this.dbAdapter.execute('PRAGMA mmap_size=268435456');
 
-    await this.dbAdapter.transaction(async (tx) => {
-      for (let i = 0; i < 300000; i++) {
-        await tx.execute(
-          'INSERT INTO "Test" (id, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-          [
-            i,
-            chance.name(),
-            chance.name(),
-            chance.name(),
-            chance.name(),
-            chance.name(),
-            chance.integer(),
-            chance.integer(),
-            chance.integer(),
-            chance.integer(),
-            chance.integer(),
-            chance.floating(),
-            chance.floating(),
-            chance.floating(),
-            chance.floating()
-          ]
-        );
-      }
-    });
+      await this.dbAdapter.transaction(async (tx) => {
+        for (let i = 0; i < 300000; i++) {
+          await tx.execute(
+            'INSERT INTO "Test" (id, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [
+              i,
+              chance.name(),
+              chance.name(),
+              chance.name(),
+              chance.name(),
+              chance.name(),
+              chance.integer(),
+              chance.integer(),
+              chance.integer(),
+              chance.integer(),
+              chance.integer(),
+              chance.floating(),
+              chance.floating(),
+              chance.floating(),
+              chance.floating()
+            ]
+          );
+        }
+      });
+    }
   }
 
-  async runAll(): Promise<BenchmarkResults> {
+  /**
+   * Runs all the benchmarks for the given database adapter.
+   * includeTest17 is an optional parameter to include the 300k records setup and query.
+   * Note: Test 17 is not included by default as it takes a long time to setup and run.
+   * @param includeTest17
+   * @returns the benchmark results
+   */
+  async runAll(includeTest17: boolean = false): Promise<BenchmarkResults> {
     let results: BenchmarkResults = new BenchmarkResults(this.name);
 
     console.log('Setting up database...');
-    await this.setUp();
+    await this.setUp(includeTest17);
     console.log('Setting up database done.');
 
     console.log('Running tests...');
@@ -166,9 +175,11 @@ class Benchmark {
     await results.record('Test 16: Clear table', async () => {
       await this.test16();
     });
-    await results.record('Test 17: Query 300k records', async () => {
-      await this.test17();
-    });
+    if (includeTest17) {
+      await results.record('Test 17: Query 300k records', async () => {
+        await this.test17();
+      });
+    }
 
     await this.tearDown();
     return results;
@@ -334,15 +345,18 @@ export class BenchmarkBatched extends Benchmark {
     super(name, dbAdapter);
   }
 
-  async setUp(): Promise<void> {
-    await super.setUp();
-  }
-
-  async runAll(): Promise<BenchmarkResults> {
+  /**
+   * Runs all the benchmarks for the given database adapter.
+   * includeTest17 is an optional parameter to include the 300k records setup and query.
+   * Note: Test 17 is not included by default as it takes a long time to setup and run.
+   * @param includeTest17
+   * @returns the benchmark results
+   */
+  async runAll(includeTest17: boolean = false): Promise<BenchmarkResults> {
     let results: BenchmarkResults = new BenchmarkResults(this.name);
 
     console.log('Setting up database for batching...');
-    await super.setUp();
+    await super.setUp(includeTest17);
     console.log('Setting up database for batching done.');
 
     console.log('Running batch tests...');
@@ -391,9 +405,11 @@ export class BenchmarkBatched extends Benchmark {
     await results.record('Test 16: Clear table', async () => {
       await super.test16();
     });
-    await results.record('Test 17: Query 300k records', async () => {
-      await super.test17();
-    });
+    if (includeTest17) {
+      await results.record('Test 17: Query 300k records', async () => {
+        await super.test17();
+      });
+    }
 
     await super.tearDown();
     return results;
