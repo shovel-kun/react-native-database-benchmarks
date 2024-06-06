@@ -1,10 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { BenchmarkSuite } from './database/benchmark-suite';
 import { OPSqliteAdapter, ExpoSqliteAdapter, ExpoNextSqliteAdapter } from './adapters/adapters';
 import { PowersyncSqliteAdapter } from './adapters/powersync-sqlite-adapter';
-import 'react-native-get-random-values'; //[Error: crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported]
+import * as Progress from 'react-native-progress';
 /**
  * RNQuickSqliteAdapter requires removing the @journeyapps/react-native-quick-sqlite libraries
  * Running the tests requires a manual switch from journeyapps to react-native-quick-sqlite
@@ -13,6 +13,8 @@ import 'react-native-get-random-values'; //[Error: crypto.getRandomValues() not 
 // import { RNQuickSqliteAdapter } from './adapters/rn-quick-sqlite-adapter';
 
 export default function App() {
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     const runTests = async () => {
       try {
@@ -29,7 +31,9 @@ export default function App() {
           { name: 'expo-next-sqlite', dbAdapter: expoNextAdapter }
         ];
         let benchmarkSuite = new BenchmarkSuite(benchmarks);
+        setIsLoading(true);
         await benchmarkSuite.runBenchmarks();
+        setIsLoading(false);
       } catch (err) {
         console.error(err);
       }
@@ -40,7 +44,8 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text>React native benchmarks</Text>
+      {!isLoading ? <Text>React native benchmarks</Text> : <Text>Running benchmarks...</Text>}
+      {isLoading && <Progress.Circle size={30} indeterminate={true} />}
       <StatusBar style="auto" />
     </View>
   );
