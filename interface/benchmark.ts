@@ -127,7 +127,7 @@ class Benchmark {
 
     console.log('Setting up database...');
     await this.setUp(includeTest17);
-    console.log('Setting up database done.');
+    console.log(`Setting up database ${this.name} done.`);
 
     console.log('Running tests...');
     await results.record('Test 1: 1000 INSERTs', async () => {
@@ -357,7 +357,7 @@ export class BenchmarkBatched extends Benchmark {
 
     console.log('Setting up database for batching...');
     await super.setUp(includeTest17);
-    console.log('Setting up database for batching done.');
+    console.log(`Setting up database ${this.name} for batching done.`);
 
     console.log('Running batch tests...');
     await results.record('Test 1: 1000 INSERTs', async () => {
