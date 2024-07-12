@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { BenchmarkSuite } from './database/benchmark-suite';
-import { OPSqliteAdapter, ExpoSqliteAdapter, ExpoNextSqliteAdapter } from './adapters/adapters';
+import { OPSqliteAdapter, ExpoSqliteAdapter } from './adapters/adapters';
 import { PowersyncSqliteAdapter } from './adapters/powersync-sqlite-adapter';
 import * as Progress from 'react-native-progress';
 /**
@@ -21,14 +21,12 @@ export default function App() {
         let opSqliteAdapter = new OPSqliteAdapter();
         let expoSqliteAdapter = new ExpoSqliteAdapter();
         let psSqliteAdapter = new PowersyncSqliteAdapter();
-        let expoNextAdapter = new ExpoNextSqliteAdapter();
         // let rnQuickSqliteAdapter = new RNQuickSqliteAdapter();
         let benchmarks = [
           { name: 'op-sqlite', dbAdapter: opSqliteAdapter },
           { name: 'ps-sqlite', dbAdapter: psSqliteAdapter },
           // { name: 'rn-quick-sqlite', dbAdapter: rnQuickSqliteAdapter }
-          { name: 'expo-sqlite', dbAdapter: expoSqliteAdapter },
-          { name: 'expo-next-sqlite', dbAdapter: expoNextAdapter }
+          { name: 'expo-sqlite', dbAdapter: expoSqliteAdapter }
         ];
         let benchmarkSuite = new BenchmarkSuite(benchmarks);
         setIsLoading(true);

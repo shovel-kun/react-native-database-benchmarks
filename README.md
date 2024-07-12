@@ -55,7 +55,7 @@ OP SQLite can be run using a performance mode fla set in the `package.json` file
 
 ### Expo-sqlite
 
-Expo sqlite does not support batching of queries out the box. The results for these were ignored in the final comparison.
+Expo sqlite does not support batching of queries out the box; however expo provides prepared statements to execute a single query multiple times. This is what was used to achieve results similar to batching.
 
 ## Running the original react-native-quick-sqlite tests
 
@@ -63,6 +63,6 @@ Expo sqlite does not support batching of queries out the box. The results for th
 
 - yarn remove @journeyapps/react-native-quick-sqlite
 - npx expo install react-native-quick-sqlite
-- Comment out the code in the file referencing PowersyncSqliteAdapter which includes `adapters/powersync-sqlite-adapter.ts`. Also comment out lines 6, 23 and 28 in `App.tsx`.
-- Uncomment out the code referencing react-native-quick-sqlite (line 6 onwards) in `adapters/rn-quick-sqlite-adapter.ts` and lines 13, 25 and 29 in `App.tsx`.
+- Comment out the code in the file referencing PowersyncSqliteAdapter which includes `adapters/powersync-sqlite-adapter.ts`. Also comment out lines 6, 23 and 27 in `App.tsx`.
+- Uncomment out the code referencing react-native-quick-sqlite (line 6 onwards) in `adapters/rn-quick-sqlite-adapter.ts` and lines 13, 24 and 29 in `App.tsx`.
 - You can follow the inverse of the above steps to test the powersync fork of react-native-quick-sqlite
