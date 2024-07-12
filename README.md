@@ -63,7 +63,7 @@ Expo sqlite does not support batching of queries out the box; however expo provi
 
 - `yarn remove @journeyapps/react-native-quick-sqlite`
 - `yarn add react-native-quick-sqlite`
-- From Expo 51 onwards this patch is required to compile RNQS `yarn patch-package`
+- From Expo 51 onwards a patch is required to compile RNQS `yarn patch-package`
 - Comment out the code in the file referencing PowersyncSqliteAdapter which includes `adapters/powersync-sqlite-adapter.ts`. Also comment out lines 6, 23 and 27 in `App.tsx`.
 - Uncomment out the code referencing react-native-quick-sqlite (line 6 onwards) in `adapters/rn-quick-sqlite-adapter.ts` and lines 13, 24 and 29 in `App.tsx`.
 - You can follow the inverse of the above steps to test the powersync fork of react-native-quick-sqlite
