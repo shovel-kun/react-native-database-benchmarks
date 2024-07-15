@@ -55,7 +55,7 @@ OP SQLite can be run using a performance mode fla set in the `package.json` file
 
 ### Expo-sqlite
 
-Expo sqlite does not support batching of queries out the box. Prepared statements achieve results similar to batching.
+Expo sqlite does not support batching of queries out the box. Prepared statements are used to achieve functionality simillar to batching.
 
 ## Running the original react-native-quick-sqlite tests
 
