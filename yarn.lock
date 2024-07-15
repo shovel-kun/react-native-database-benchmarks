@@ -1258,11 +1258,6 @@
     "@types/yargs" "^17.0.8"
     chalk "^4.0.0"
 
-"@journeyapps/react-native-quick-sqlite@^1.1.5":
-  version "1.1.8"
-  resolved "https://registry.yarnpkg.com/@journeyapps/react-native-quick-sqlite/-/react-native-quick-sqlite-1.1.8.tgz#5e38a618b486c706567155152d31f9ff44ccc7d1"
-  integrity sha512-9e85lXBMPht3mEyAKHBaag7crtrFwlEg1H+5ln1+RwORNtRELGLjOX8vA9cCTE6JoBRraEJLWRY30jmS1bmmvQ==
-
 "@jridgewell/gen-mapping@^0.3.2", "@jridgewell/gen-mapping@^0.3.5":
   version "0.3.5"
   resolved "https://registry.yarnpkg.com/@jridgewell/gen-mapping/-/gen-mapping-0.3.5.tgz#dcce6aff74bdf6dad1a95802b69b04a2fcb1fb36"
@@ -1340,6 +1335,11 @@
   version "0.11.0"
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
+
+"@powersync/react-native-quick-sqlite@^1.1.8":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@powersync/react-native-quick-sqlite/-/react-native-quick-sqlite-1.2.0.tgz#f076fc6d7f6497b2850add19d81c88ead2aa446e"
+  integrity sha512-C+wkEJJKpCHXUYAHiuJkMFa+1ra4XYt6gNsBl2pLlSZIjT8EvnapDVjNmGuzajUq0g6dwwl9FhtYPIVvVZcijg==
 
 "@radix-ui/react-compose-refs@1.0.0":
   version "1.0.0"
@@ -5761,11 +5761,6 @@ postcss@~8.4.32:
     nanoid "^3.3.7"
     picocolors "^1.0.1"
     source-map-js "^1.2.0"
-
-postinstall-postinstall@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/postinstall-postinstall/-/postinstall-postinstall-2.1.0.tgz#4f7f77441ef539d1512c40bd04c71b06a4704ca3"
-  integrity sha512-7hQX6ZlZXIoRiWNrbMQaLzUUfH+sSx39u8EJ9HYuDc1kLo9IXKWjM5RSquZN1ad5GnH8CGFM78fsAAQi3OKEEQ==
 
 pouchdb-collections@^1.0.1:
   version "1.0.1"
