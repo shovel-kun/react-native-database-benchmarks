@@ -37,8 +37,15 @@ export class ExpoSqliteAdapter extends AbstractDBAdapter {
     };
   }
 
-  executeBatch(commands: SQLBatchTuple[]): Promise<ResultSet> {
-    throw new ClassNotImplementedError('ExecuteBatch() method not implemented.');
+  async executeBatch(commands: SQLBatchTuple[]): Promise<ResultSet> {
+    const statement = await this.db.prepareAsync(commands[0][0]);
+    for (const tuple of commands) {
+      const params = tuple[1];
+      await statement.executeAsync(params as any[]);
+    }
+    await statement.finalizeAsync();
+    // Result is not used
+    return {};
   }
 
   async transaction(callback: TransactionCallback): Promise<void> {
