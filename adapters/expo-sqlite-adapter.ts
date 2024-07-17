@@ -38,13 +38,15 @@ export class ExpoSqliteAdapter extends AbstractDBAdapter {
   }
 
   async executeBatch(commands: SQLBatchTuple[]): Promise<ResultSet> {
-    const statement = await this.db.prepareAsync(commands[0][0]);
-    for (const tuple of commands) {
-      const params = tuple[1];
-      await statement.executeAsync(params as any[]);
-    }
-    await statement.finalizeAsync();
-    // Result is not used
+    await this.transaction(async (tx) => {
+      const statement = await this.db.prepareAsync(commands[0][0]);
+      for (const tuple of commands) {
+        const params = tuple[1];
+        await statement.executeAsync(params as any[]);
+      }
+      await statement.finalizeAsync();
+    });
+    //Result is not used
     return {};
   }
 
