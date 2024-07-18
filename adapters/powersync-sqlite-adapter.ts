@@ -1,5 +1,5 @@
 import { AbstractDBAdapter, ResultSet, SQLBatchTuple, TransactionCallback } from '../interface/db_adapter';
-import { QuickSQLiteConnection, open } from '@journeyapps/react-native-quick-sqlite';
+import { QuickSQLiteConnection, open } from '@powersync/react-native-quick-sqlite';
 import { deleteDbFile, getDbPath } from '../database/utils';
 
 const DB_NAME = 'powersync-sqlite';
