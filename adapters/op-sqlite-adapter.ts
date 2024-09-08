@@ -1,11 +1,11 @@
-import { OPSQLiteConnection, open } from '@op-engineering/op-sqlite';
+import { DB, open } from '@op-engineering/op-sqlite';
 import { AbstractDBAdapter, DBAdapter, ResultSet, SQLBatchTuple, TransactionCallback } from '../interface/db_adapter';
 import { deleteDbFile, getDbPath } from '../database/utils';
 
 const DB_NAME = 'op-sqlite';
 
 export class OPSqliteAdapter extends AbstractDBAdapter {
-  private _db: OPSQLiteConnection | null;
+  private _db: DB | null;
 
   constructor() {
     super();
@@ -14,7 +14,7 @@ export class OPSqliteAdapter extends AbstractDBAdapter {
 
   // Only to be used after init()
   get db() {
-    return this._db as OPSQLiteConnection;
+    return this._db as DB;
   }
 
   async init() {

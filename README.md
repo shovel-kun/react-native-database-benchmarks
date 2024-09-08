@@ -1,6 +1,12 @@
-# React Native Database Benchmarks
+# React Native Database Benchmarks (+ JSON benchmarks)
 
 A project to compare performance between various databases on React Native.
+
+This fork adds:
+
+- Test for JSON
+- Improved batching method for op-sqlite
+- Updated op-sqlite to latest version
 
 ## Install dependencies
 
@@ -59,7 +65,7 @@ Expo sqlite does not support batching of queries out the box. Prepared statement
 
 ## Running the original react-native-quick-sqlite tests
 
-#### Steps to setup the library:
+#### Steps to setup the library
 
 - `yarn remove @powersync/react-native-quick-sqlite`
 - `yarn add react-native-quick-sqlite`

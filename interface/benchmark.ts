@@ -78,6 +78,7 @@ class Benchmark {
     await this.dbAdapter.execute('CREATE TABLE IF NOT EXISTS t3(id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, c TEXT)');
     await this.dbAdapter.execute('CREATE INDEX IF NOT EXISTS i3a ON t3(a)');
     await this.dbAdapter.execute('CREATE INDEX IF NOT EXISTS i3b ON t3(b)');
+    await this.dbAdapter.execute('CREATE TABLE IF NOT EXISTS json_table(id INTEGER PRIMARY KEY, json_data TEXT)');
 
     if (includeTest17) {
       console.log('Setting up database with 300K records, this might take a while...');
@@ -180,6 +181,38 @@ class Benchmark {
         await this.test17();
       });
     }
+    // JSON tests with 1000 iterations
+    await results.record('Test 18: 1000 JSON INSERTs', async () => {
+      await this.testJsonInsert(1000);
+    });
+    await results.record('Test 19: 1000 JSON SELECTs', async () => {
+      await this.testJsonSelect(1000);
+    });
+    await results.record('Test 20: 1000 JSON SELECTs + parsing', async () => {
+      await this.testJsonSelectParse(1000);
+    });
+
+    // JSON tests with 5000 iterations
+    await results.record('Test 21: 5000 JSON INSERTs', async () => {
+      await this.testJsonInsert(5000);
+    });
+    await results.record('Test 22: 5000 JSON SELECTs', async () => {
+      await this.testJsonSelect(5000);
+    });
+    await results.record('Test 23: 5000 JSON SELECTs + parsing', async () => {
+      await this.testJsonSelectParse(5000);
+    });
+
+    // JSON tests with 25000 iterations
+    await results.record('Test 24: 25000 JSON INSERTs', async () => {
+      await this.testJsonInsert(25000);
+    });
+    await results.record('Test 25: 25000 JSON SELECTs', async () => {
+      await this.testJsonSelect(25000);
+    });
+    await results.record('Test 26: 25000 JSON SELECTs + parsing', async () => {
+      await this.testJsonSelectParse(25000);
+    });
 
     await this.tearDown();
     return results;
@@ -330,11 +363,44 @@ class Benchmark {
     await this.dbAdapter.execute('SELECT * FROM Test;');
   }
 
+  async testJsonInsert(count: number): Promise<void> {
+    await this.dbAdapter.transaction(async (tx) => {
+      for (let i = 0; i < count; i++) {
+        const jsonData = { name: `John Doe ${i}`, age: 30 + (i % 50), city: 'New York' };
+        await tx.execute('INSERT INTO json_table(json_data) VALUES(?)', [JSON.stringify(jsonData)]);
+      }
+    });
+    await this.dbAdapter.execute('PRAGMA wal_checkpoint(RESTART)');
+  }
+
+  async testJsonSelect(count: number): Promise<void> {
+    await this.dbAdapter.transaction(async (tx) => {
+      for (let i = 0; i < count; i++) {
+        const result = await tx.execute('SELECT json_data FROM json_table WHERE id = ?', [(i % 1000) + 1]);
+        if (result && result.rows && result.rows.length > 0 && result.rows[0].json_data) {
+          JSON.parse(result.rows[0].json_data);
+        }
+      }
+    });
+  }
+
+  async testJsonSelectParse(count: number): Promise<void> {
+    await this.dbAdapter.transaction(async (tx) => {
+      for (let i = 0; i < count; i++) {
+        const result = await tx.execute('SELECT json_data FROM json_table WHERE id = ?', [i + 1]);
+        if (result && result.rows && result.rows.length > 0 && result.rows[0].json_data) {
+          JSON.parse(result.rows[0].json_data);
+        }
+      }
+    });
+  }
+
   async tearDown(): Promise<void> {
     await this.dbAdapter.execute('DROP TABLE IF EXISTS t1');
     await this.dbAdapter.execute('DROP TABLE IF EXISTS t2');
     await this.dbAdapter.execute('DROP TABLE IF EXISTS t3');
     await this.dbAdapter.execute('DROP TABLE IF EXISTS Test');
+    await this.dbAdapter.execute('DROP TABLE IF EXISTS json_table');
 
     await this.dbAdapter.close();
   }
@@ -410,6 +476,33 @@ export class BenchmarkBatched extends Benchmark {
         await super.test17();
       });
     }
+    await results.record('Test 18: 1000 JSON INSERTs', async () => {
+      await this.testJsonInsert(1000);
+    });
+    await results.record('Test 19: 1000 JSON SELECTs', async () => {
+      await this.testJsonSelect(1000);
+    });
+    await results.record('Test 20: 1000 JSON SELECTs + parsing', async () => {
+      await this.testJsonSelectParse(1000);
+    });
+    await results.record('Test 21: 5000 JSON INSERTs', async () => {
+      await this.testJsonInsert(5000);
+    });
+    await results.record('Test 22: 5000 JSON SELECTs', async () => {
+      await this.testJsonSelect(5000);
+    });
+    await results.record('Test 23: 5000 JSON SELECTs + parsing', async () => {
+      await this.testJsonSelectParse(5000);
+    });
+    await results.record('Test 24: 25000 JSON INSERTs', async () => {
+      await this.testJsonInsert(25000);
+    });
+    await results.record('Test 25: 25000 JSON SELECTs', async () => {
+      await this.testJsonSelect(25000);
+    });
+    await results.record('Test 26: 25000 JSON SELECTs + parsing', async () => {
+      await this.testJsonSelectParse(25000);
+    });
 
     await super.tearDown();
     return results;
@@ -472,6 +565,51 @@ export class BenchmarkBatched extends Benchmark {
     }
     await this.dbAdapter.executeBatch(params);
     await this.dbAdapter.execute('PRAGMA wal_checkpoint(RESTART)');
+  }
+
+  async testJsonInsert(count: number): Promise<void> {
+    let params: SQLBatchTuple[] = [];
+    const query = `INSERT INTO json_table(json_data) VALUES(?)`;
+
+    for (let i = 0; i < count; i++) {
+      const jsonData = { name: `John Doe ${i}`, age: 30 + (i % 50), city: 'New York' };
+      params.push([query, [JSON.stringify(jsonData)]]);
+    }
+
+    await this.dbAdapter.executeBatch(params);
+    await this.dbAdapter.execute('PRAGMA wal_checkpoint(RESTART)');
+  }
+
+  async testJsonSelect(count: number): Promise<void> {
+    const batchSize = 5000;
+    const batches = Math.ceil(count / batchSize);
+
+    for (let i = 0; i < batches; i++) {
+      const query = `SELECT json_data FROM json_table WHERE id > ? AND id <= ?`;
+      const startId = i * batchSize;
+      const endId = Math.min((i + 1) * batchSize, count);
+
+      await this.dbAdapter.execute(query, [startId, endId]);
+    }
+  }
+
+  async testJsonSelectParse(count: number): Promise<void> {
+    const batchSize = 5000;
+    const batches = Math.ceil(count / batchSize);
+
+    for (let i = 0; i < batches; i++) {
+      const query = `SELECT json_data FROM json_table WHERE id > ? AND id <= ?`;
+      const startId = i * batchSize;
+      const endId = Math.min((i + 1) * batchSize, count);
+
+      const results = await this.dbAdapter.execute(query, [startId, endId]);
+
+      for (const row of results.rows) {
+        if (row && row.json_data) {
+          JSON.parse(row.json_data);
+        }
+      }
+    }
   }
 }
 

@@ -1,5 +1,7 @@
 import Benchmark, { BenchmarkBatched, BenchmarkResults } from '../interface/benchmark';
 import { DBAdapter } from '../interface/db_adapter';
+import * as FileSystem from 'expo-file-system';
+import { StorageAccessFramework } from 'expo-file-system';
 
 export class BenchmarkSuite {
   benchmarks: { name: string; dbAdapter: DBAdapter }[];
@@ -23,11 +25,37 @@ export class BenchmarkSuite {
       let test = first.results[i].test;
       s += `,${test}`;
       for (const rr of results) {
-        let r3 = rr.results[i].duration;
-        s += `,${r3}`;
+        if (i < rr.results.length) {
+          let r3 = rr.results[i].duration;
+          s += `,${r3}`;
+        } else {
+          s += `,N/A`;
+        }
       }
       s += '\n';
     }
     console.log(`Here are the results in CSV format:\n${s}`);
+    await this.saveToFile('benchmark_results.csv', s);
+  }
+
+  private async saveToFile(filename: string, content: string) {
+    const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync();
+    if (!permissions.granted) {
+      return;
+    }
+
+    try {
+      await StorageAccessFramework.createFileAsync(permissions.directoryUri, filename, 'text/csv')
+        .then(async (uri) => {
+          await FileSystem.writeAsStringAsync(uri, content, { encoding: FileSystem.EncodingType.Base64 });
+        })
+        .catch((e) => {
+          console.log(e);
+          throw e;
+        });
+    } catch (e) {
+      console.error('Error saving file:', e);
+      throw e;
+    }
   }
 }
